@@ -41,6 +41,84 @@ export type Database = {
         }
         Relationships: []
       }
+      game_feedback: {
+        Row: {
+          child_id: string
+          difficulty: string
+          fun: string
+          game_id: string
+          hints_used: number
+          id: string
+          submitted_at: string
+          was_replay: boolean
+        }
+        Insert: {
+          child_id: string
+          difficulty: string
+          fun: string
+          game_id: string
+          hints_used?: number
+          id?: string
+          submitted_at?: string
+          was_replay?: boolean
+        }
+        Update: {
+          child_id?: string
+          difficulty?: string
+          fun?: string
+          game_id?: string
+          hints_used?: number
+          id?: string
+          submitted_at?: string
+          was_replay?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_feedback_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_feedback_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_objectives: {
+        Row: {
+          game_id: string
+          objective_code: string
+        }
+        Insert: {
+          game_id: string
+          objective_code: string
+        }
+        Update: {
+          game_id?: string
+          objective_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_objectives_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_objectives_objective_code_fkey"
+            columns: ["objective_code"]
+            isOneToOne: false
+            referencedRelation: "learning_objectives"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       game_progress: {
         Row: {
           attempts: number
@@ -138,6 +216,24 @@ export type Database = {
             referencedColumns: ["position"]
           },
         ]
+      }
+      learning_objectives: {
+        Row: {
+          code: string
+          description: string
+          title: string
+        }
+        Insert: {
+          code: string
+          description: string
+          title: string
+        }
+        Update: {
+          code?: string
+          description?: string
+          title?: string
+        }
+        Relationships: []
       }
       levels: {
         Row: {
@@ -336,6 +432,16 @@ export type Database = {
           _redeem_date: string
         }
         Returns: Json
+      }
+      submit_game_feedback: {
+        Args: {
+          _child_id: string
+          _difficulty: string
+          _fun: string
+          _game_id: string
+          _hints_used: number
+        }
+        Returns: string
       }
     }
     Enums: {

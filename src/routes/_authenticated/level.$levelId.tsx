@@ -1,3 +1,4 @@
+import { objectivesQuery } from "@/lib/insights-data";
 import { useQuery } from "@tanstack/react-query";
 import { euro, walletQuery } from "@/lib/wallet-data";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -35,10 +36,11 @@ function LevelPage() {
 function LevelView({ a, n }: { a: Adventure; n: number }) {
   const s = useDemo();
   const level = a.content.levels.find((l) => l.n === n);
+  const plan = useQuery(walletQuery(a.child.id)).data?.plan;
+  const obj = useQuery(objectivesQuery).data;
   if (!level) return <div className="mx-auto max-w-lg p-6"><Card className="text-center"><h1 className="text-2xl font-extrabold">Island not found</h1><Link to="/map" className="mt-3 inline-block font-extrabold text-teal underline">Back to the map</Link></Card></div>;
   const games = a.content.games.filter((g) => g.level === n);
   const status = levelState(a.content.games, a.done, n);
-  const plan = useQuery(walletQuery(a.child.id)).data?.plan;
   const progress = new Map(a.progress.map((p) => [p.game_id, p]));
 
   return (
@@ -80,6 +82,7 @@ function LevelView({ a, n }: { a: Adventure; n: number }) {
                   <p className="text-xs font-extrabold uppercase tracking-wide text-muted-foreground">Game {i + 1} · {KIND_LABEL[g.def.kind]}</p>
                   <h2 className="mt-1 text-xl font-extrabold">{g.title}</h2>
                   <p className="mt-1 flex-1 text-sm">{g.goal}</p>
+                  {obj && <ul className="mt-2 flex flex-wrap gap-1" aria-label="Skills practised">{(obj.tags[g.id] ?? []).map((c) => <li key={c} className="rounded-full border border-navy/40 bg-card px-2 py-0.5 text-xs font-bold">{obj.list.find((o) => o.code === c)?.title ?? c}</li>)}</ul>}
                   <p className="mt-3 inline-flex items-center gap-1 text-sm font-extrabold">
                     {done ? <><CheckCircle2 className="size-4" /> Completed</> : locked ? <><Lock className="size-4" /> Locked</> : p ? <>In progress · {p.attempts} tr{p.attempts === 1 ? "y" : "ies"}</> : <>Not started</>}
                   </p>

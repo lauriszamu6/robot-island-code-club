@@ -1,3 +1,5 @@
+import { feedbackQuery, objectivesQuery } from "@/lib/insights-data";
+import { nextChallenge } from "@/lib/recommend";
 import { useQuery as useWalletQ } from "@tanstack/react-query";
 import { euro, summarize, walletQuery } from "@/lib/wallet-data";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -63,14 +65,7 @@ function MapView({ a }: { a: Adventure }) {
           <RobotSays mood={done === games.length ? "celebrate" : "welcome"}>
             {done === games.length ? "Every island is fixed! Amazing building." : `Hi ${a.child.nickname}! ${done} of ${games.length} games done.`}
           </RobotSays>
-          {next && (
-            <Card className="bg-teal-soft">
-              <p className="text-sm font-extrabold uppercase tracking-wide">Recommended next</p>
-              <p className="mt-1 text-xl font-extrabold">{next.title}</p>
-              <p className="text-sm">Level {next.level} · {levels.find((l) => l.n === next.level)?.concept}</p>
-              <Link to="/play/$gameId" params={{ gameId: next.id }} search={{ mode: "normal" }} className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-2xl chunky bg-coral px-5 font-extrabold text-primary-foreground"><Play className="size-5" /> Play</Link>
-            </Card>
-          )}
+          <NextChallenge a={a} />
           <MapGoal a={a} next={next} />
         </aside>
       </div>
@@ -128,6 +123,27 @@ function MapGoal({ a, next }: { a: Adventure; next: { title: string } | null | u
       <p className="text-sm"><strong>Redeem from:</strong> {format(parseISO(w.goal.redeem_date), "d MMM yyyy")}{todayISO() >= w.goal.redeem_date && " (ready!)"}</p>
       <Link to="/rewards" className="mt-3 inline-block text-sm font-extrabold text-teal underline underline-offset-4">See goal & history</Link>
       <DemoFunds className="mt-3" />
+    </Card>
+  );
+}
+
+function NextChallenge({ a }: { a: Adventure }) {
+  const fb = useWalletQ(feedbackQuery(a.child.id));
+  const ob = useWalletQ(objectivesQuery);
+  if (fb.error || ob.error) return <Card><p className="text-sm font-bold">Couldn't load your next challenge.</p><button className="text-sm font-bold text-teal underline" onClick={() => { fb.refetch(); ob.refetch(); }}>Try again</button></Card>;
+  if (!fb.data || !ob.data) return <Card className="bg-teal-soft"><p className="text-sm font-bold">Finding your next challenge…</p></Card>;
+  const r = nextChallenge({ games: a.content.games, done: a.done, tags: ob.data.tags }, fb.data);
+  const g = r.game;
+  return (
+    <Card className="bg-teal-soft">
+      <p className="text-sm font-extrabold uppercase tracking-wide">Recommended next</p>
+      {g ? <>
+        <p className="mt-1 text-xl font-extrabold">{g.title}{r.mode === "practice" ? " · practice" : r.mode === "harder" ? " · challenge mode" : ""}</p>
+        <p className="text-sm">Level {g.level} · {a.content.levels.find((l) => l.n === g.level)?.concept}</p>
+      </> : null}
+      <p className="mt-2 text-sm">{r.message}</p>
+      <p className="mt-1 text-xs font-bold text-muted-foreground">Why: {r.rule}</p>
+      {g && <Link to="/play/$gameId" params={{ gameId: g.id }} search={{ mode: r.mode }} className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-2xl chunky bg-coral px-5 font-extrabold text-primary-foreground"><Play className="size-5" /> Play</Link>}
     </Card>
   );
 }

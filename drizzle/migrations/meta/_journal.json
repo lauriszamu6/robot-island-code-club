@@ -15,6 +15,13 @@
       "when": 1794597594875,
       "tag": "0001_core2_rewards_wallet",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794598014776,
+      "tag": "0002_core3_feedback_objectives",
+      "breakpoints": true
     }
   ]
 }

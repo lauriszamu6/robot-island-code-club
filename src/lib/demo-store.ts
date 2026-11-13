@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { defaultState, type DemoState } from "./rewards";
 
-// Core 2/3 placeholders (reward plan, wallet, feedback) stay local per child until those phases move them to the database.
+// Local per-child UI preferences only (role view switch); all core data lives in the database.
 let KEY = "astrobit-demo-v1";
 let state: DemoState = defaultState();
 const listeners = new Set<() => void>();

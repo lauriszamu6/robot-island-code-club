@@ -1,92 +1,67 @@
-// Transparent, rule-based challenge suggestions. No AI, no profiling.
-import { GAMES, KIND_LABEL, gameById, type Game } from "./game-data";
-import { isLevelUnlocked, type DemoState, type Feedback } from "./rewards";
+// Transparent, rule-based challenge suggestions from stored data. No AI, no personality or career profiling.
+import { KIND_LABEL, type Game } from "./game-data";
+import { levelState, nextOpenGame, type Progress } from "./adventure-data";
+import type { FeedbackRow, Objective } from "./insights-data";
 
-export type Recommendation = {
-  rule: string;
-  message: string;
-  game: Game | null;
-  mode: "normal" | "practice" | "harder";
-  adultTip?: string;
-};
+export type Fun = "not_for_me" | "okay" | "loved";
+export type Perceived = "too_easy" | "just_right" | "too_hard";
+export type Ctx = { games: Game[]; done: Set<string>; tags: Record<string, string[]> };
+export type Recommendation = { rule: string; message: string; game: Game | null; mode: "normal" | "practice" | "harder"; adultTip?: string };
 
-const unlocked = (s: DemoState) => GAMES.filter((g) => isLevelUnlocked(s, g.level));
+const openGames = (c: Ctx) => c.games.filter((g) => levelState(c.games, c.done, g.level) !== "locked");
+const shares = (c: Ctx, a: string, b: string) => (c.tags[a] ?? []).some((o) => (c.tags[b] ?? []).includes(o));
 
-export function recommend(s: DemoState, gameId: string, fun: Feedback["fun"], difficulty: Feedback["difficulty"]): Recommendation {
-  const current = gameById(gameId)!;
-  const open = unlocked(s);
-  const nextNew = open.find((g) => !s.completed[g.id] && g.id !== gameId) ?? null;
+export function recommend(c: Ctx, gameId: string, fun: Fun, difficulty: Perceived): Recommendation {
+  const current = c.games.find((g) => g.id === gameId)!;
+  const open = openGames(c);
+  const nextNew = open.find((g) => !c.done.has(g.id) && g.id !== gameId) ?? null;
 
-  if (difficulty === "hard") {
-    const practice = open.find((g) => g.def.kind === current.def.kind && g.id !== gameId && s.completed[g.id]) ?? current;
-    return {
-      rule: "Too hard → simpler practice",
-      message: `Try a gentler practice round of “${practice.title}”, with an adult nearby.`,
-      game: practice,
-      mode: "practice",
-      adultTip: `Sit together and ask: “${current.guide.question}”`,
-    };
+  if (difficulty === "too_hard") {
+    const practice = open.find((g) => g.id !== gameId && c.done.has(g.id) && shares(c, g.id, gameId)) ?? current;
+    return { rule: "Too hard → simpler practice", message: `Try a gentler practice round of “${practice.title}”, with an adult nearby.`, game: practice, mode: "practice", adultTip: `Sit together and ask: “${current.guide.question}”` };
   }
-  if (difficulty === "easy") {
-    return {
-      rule: "Too easy → harder variation",
-      message: `Try “${current.title}” in Challenge mode: fewer blocks, extra goals.`,
-      game: current,
-      mode: "harder",
-    };
+  if (difficulty === "too_easy") {
+    return { rule: "Too easy → harder variation", message: `Try “${current.title}” in Challenge mode: fewer blocks, extra goals.`, game: current, mode: "harder" };
   }
-  if (fun === "not") {
-    const other = open.find((g) => g.def.kind !== current.def.kind && !s.completed[g.id]) ??
-      open.find((g) => g.def.kind !== current.def.kind) ?? null;
-    return {
-      rule: "Not for me → different puzzle format",
-      message: other ? `Let's switch it up: “${other.title}” is a ${KIND_LABEL[other.def.kind].toLowerCase()}.` : "Take a break and come back anytime.",
-      game: other,
-      mode: "normal",
-    };
+  if (fun === "not_for_me") {
+    const other = open.find((g) => g.def.kind !== current.def.kind && !c.done.has(g.id)) ?? open.find((g) => g.def.kind !== current.def.kind) ?? null;
+    return { rule: "Not for me → different puzzle format", message: other ? `Let's switch it up: “${other.title}” is a ${KIND_LABEL[other.def.kind].toLowerCase()}.` : "Take a break and come back anytime.", game: other, mode: "normal" };
   }
   if (fun === "loved") {
-    const related = open.find((g) => g.def.kind === current.def.kind && !s.completed[g.id] && g.id !== gameId) ?? nextNew;
-    return {
-      rule: "Loved it + just right → related challenge",
-      message: related ? `You liked this one! “${related.title}” is a similar challenge.` : "You've done every open challenge. Amazing!",
-      game: related,
-      mode: "normal",
-    };
+    const related = open.find((g) => !c.done.has(g.id) && g.id !== gameId && shares(c, g.id, gameId)) ?? nextNew;
+    return { rule: "Loved it → related challenge", message: related ? `You liked this one! “${related.title}” practises a similar skill.` : "You've done every open challenge. Amazing!", game: related, mode: "normal" };
   }
-  return {
-    rule: "Next on the journey",
-    message: nextNew ? `Next up: “${nextNew.title}”.` : "Every open challenge is complete!",
-    game: nextNew,
-    mode: "normal",
-  };
+  return { rule: "Next on the journey", message: nextNew ? `Next up: “${nextNew.title}”.` : "Every open challenge is complete!", game: nextNew, mode: "normal" };
 }
 
-/** Descriptive observations for adults. Completion, ratings, hints and replays stay separate. */
-export function observations(s: DemoState) {
-  const byKind: Record<string, { fun: number; n: number }> = {};
-  for (const f of s.feedback) {
-    const k = gameById(f.gameId)!.def.kind;
-    byKind[k] ??= { fun: 0, n: 0 };
-    byKind[k].fun += f.fun === "loved" ? 2 : f.fun === "okay" ? 1 : 0;
-    byKind[k].n += 1;
+/** Next challenge for the map: uses the latest stored rating, or explains the default when there is none. */
+export function nextChallenge(c: Ctx, feedback: FeedbackRow[]): Recommendation {
+  const last = feedback[feedback.length - 1];
+  if (!last || !c.games.some((g) => g.id === last.game_id)) {
+    const g = nextOpenGame(c.games, c.done);
+    return { rule: "No ratings yet", message: g ? `No ratings yet, so we suggest the next open game: “${g.title}”.` : "Every open challenge is complete!", game: g, mode: "normal" };
   }
-  const ratings: string[] = [];
-  for (const [k, v] of Object.entries(byKind)) {
-    const avg = v.fun / v.n;
-    const label = KIND_LABEL[k as Game["def"]["kind"]].toLowerCase();
-    ratings.push(avg >= 1.5 ? `Rated ${label} highly` : avg < 0.75 ? `Rated ${label} as “not for me”` : `Rated ${label} as okay`);
-  }
-  const hardRatings = s.feedback.filter((f) => f.difficulty === "hard").map((f) => gameById(f.gameId)!.title);
-  const hintsByConcept: Record<string, number> = {};
-  for (const [id, n] of Object.entries(s.hints)) {
-    const g = gameById(id);
-    if (g && n > 0) hintsByConcept[g.guide.concept] = (hintsByConcept[g.guide.concept] ?? 0) + n;
-  }
-  const hints = Object.entries(hintsByConcept).map(([c, n]) => `Needed ${n} hint${n > 1 ? "s" : ""} with ${c.toLowerCase()}`);
-  const replays = Object.entries(s.replays).filter(([, n]) => n > 0).map(([id, n]) => `Voluntarily replayed “${gameById(id)?.title}” ${n}×`);
-  return { ratings, hardRatings, hints, replays };
+  const r = recommend(c, last.game_id, last.fun, last.difficulty);
+  const title = c.games.find((g) => g.id === last.game_id)!.title;
+  return { ...r, rule: `${r.rule} (based on your rating of “${title}”)` };
 }
 
-export const nextGame = (s: DemoState) =>
-  GAMES.find((g) => isLevelUnlocked(s, g.level) && !s.completed[g.id]) ?? null;
+/** Descriptive observations for adults from stored progress and ratings. Not a score, not a profile. */
+export function observations(games: Game[], objectives: Objective[], tags: Record<string, string[]>, feedback: FeedbackRow[], progress: Progress[]) {
+  const title = (code: string) => objectives.find((o) => o.code === code)?.title.toLowerCase() ?? code;
+  const fun: Record<string, { s: number; n: number }> = {};
+  const hints: Record<string, number> = {};
+  for (const f of feedback) for (const o of tags[f.game_id] ?? []) {
+    (fun[o] ??= { s: 0, n: 0 }).s += f.fun === "loved" ? 2 : f.fun === "okay" ? 1 : 0;
+    fun[o].n += 1;
+    if (f.hints_used > 0) hints[o] = (hints[o] ?? 0) + f.hints_used;
+  }
+  const ratings = Object.entries(fun).map(([o, v]) => {
+    const avg = v.s / v.n;
+    return `${avg >= 1.5 ? "Rated" : avg < 0.75 ? "Rated as “not for me”:" : "Rated as okay:"} ${title(o)}${avg >= 1.5 ? " highly" : ""} (${v.n} rating${v.n > 1 ? "s" : ""})`;
+  });
+  const hardRatings = [...new Set(feedback.filter((f) => f.difficulty === "too_hard").map((f) => games.find((g) => g.id === f.game_id)?.title ?? f.game_id))];
+  const hintList = Object.entries(hints).map(([o, n]) => `Used ${n} hint${n > 1 ? "s" : ""} on games about ${title(o)}`);
+  const replays = progress.filter((p) => p.replays > 0).map((p) => `Voluntarily replayed “${games.find((g) => g.id === p.game_id)?.title}” ${p.replays}×`);
+  return { ratings, hardRatings, hints: hintList, replays };
+}

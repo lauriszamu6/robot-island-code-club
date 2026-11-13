@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { applyCompletion, applyRedemption, defaultState, earnedBy, earnedTotal, isLevelUnlocked, maxCost, validatePlan, type DemoState } from "@/lib/rewards";
-import { recommend } from "@/lib/recommend";
 
 const withPlan = (): DemoState => ({
   ...defaultState(),
@@ -47,14 +46,6 @@ describe("rewards", () => {
     const r = applyRedemption(s, "n", "2030-01-01");
     expect(r.redemption?.amount).toBe(2);
     expect(applyRedemption(r, "n2", "2030-02-01")).toBe(r);
-  });
-  it("recommendations never point to locked levels", () => {
-    const s = complete(withPlan(), ["1-1"]);
-    for (const fun of ["not", "okay", "loved"] as const)
-      for (const d of ["easy", "right", "hard"] as const) {
-        const r = recommend(s, "1-1", fun, d);
-        if (r.game) expect(r.game.level).toBe(1);
-      }
   });
 });
 

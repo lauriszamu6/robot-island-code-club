@@ -12,6 +12,7 @@ import { useDemo } from "@/lib/demo-store";
 import type { Difficulty } from "@/lib/game-data";
 import { euro, summarize, walletQuery } from "@/lib/wallet-data";
 import { observations } from "@/lib/recommend";
+import { feedbackQuery, objectivesQuery } from "@/lib/insights-data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/adult")({
@@ -50,9 +51,13 @@ function AdultView({ a }: { a: Adventure }) {
   const wq = useQuery(walletQuery(a.child.id));
   const w = wq.data;
   const sum = w ? summarize(w, games, levels, a.done) : null;
-  const obs = observations(s);
-  const hintsTotal = Object.values(s.hints).reduce((a, b) => a + b, 0);
-  const replaysTotal = Object.values(s.replays).reduce((a, b) => a + b, 0);
+  const fbq = useQuery(feedbackQuery(a.child.id));
+  const obq = useQuery(objectivesQuery);
+  const fbRows = fbq.data ?? [];
+  const obs = observations(games, obq.data?.list ?? [], obq.data?.tags ?? {}, fbRows, a.progress);
+  const hintsTotal = fbRows.reduce((n, f) => n + f.hints_used, 0);
+  const replaysTotal = a.progress.reduce((n, p) => n + p.replays, 0);
+  const objTitle = (code: string) => obq.data?.list.find((o) => o.code === code)?.title ?? code;
   const List = ({ items, empty }: { items: string[]; empty: string }) => items.length ? <ul className="list-disc space-y-1 pl-5 text-sm">{items.map((x) => <li key={x}>{x}</li>)}</ul> : <p className="text-sm text-muted-foreground">{empty}</p>;
 
   return (
@@ -91,6 +96,8 @@ function AdultView({ a }: { a: Adventure }) {
             })}
           </ul>
         </Card>
+        {(fbq.error || obq.error) && <Card className="shadow-none"><p className="font-bold">Couldn't load ratings.</p><button className="text-sm font-bold text-teal underline" onClick={() => { fbq.refetch(); obq.refetch(); }}>Try again</button></Card>}
+        <Card className="shadow-none"><h2 className="text-lg font-extrabold">Recent ratings · {fbRows.length}</h2><div className="mt-2"><List items={fbRows.slice(-5).reverse().map((f) => `${games.find((g) => g.id === f.game_id)?.title}: ${f.fun === "loved" ? "loved it" : f.fun === "okay" ? "okay" : "not for me"}, ${f.difficulty.replace("_", " ")} (${(obq.data?.tags[f.game_id] ?? []).map(objTitle).join(", ")})`)} empty={fbq.isLoading ? "Loading…" : "No ratings yet. Suggestions will follow the normal order."} /></div></Card>
         <Card className="shadow-none"><h2 className="text-lg font-extrabold">Ratings (child's own words)</h2><div className="mt-2"><List items={[...obs.ratings, ...obs.hardRatings.map((t) => `Said “${t}” felt too hard`)]} empty="No ratings yet." /></div></Card>
         <Card className="shadow-none"><h2 className="text-lg font-extrabold">Hints used · {hintsTotal}</h2><div className="mt-2"><List items={obs.hints} empty="No hints used yet." /></div></Card>
         <Card className="shadow-none"><h2 className="text-lg font-extrabold">Voluntary replays · {replaysTotal}</h2><div className="mt-2"><List items={obs.replays} empty="No replays yet." /></div></Card>

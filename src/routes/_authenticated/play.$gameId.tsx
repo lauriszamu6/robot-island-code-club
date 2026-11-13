@@ -13,10 +13,11 @@ import { OrderEngine } from "@/components/game/OrderEngine";
 import { GridEngine } from "@/components/game/GridEngine";
 import { LogicEngine } from "@/components/game/LogicEngine";
 import { AdultGuide } from "@/components/game/AdultGuide";
-import { getDemo, setDemo } from "@/lib/demo-store";
 import { KIND_LABEL, type Game, type Level, type Difficulty, type GridDef, type LogicDef, type OrderDef } from "@/lib/game-data";
-import { type CompletionResult, type Feedback } from "@/lib/rewards";
-import { recommend, type Recommendation } from "@/lib/recommend";
+import { type CompletionResult } from "@/lib/rewards";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { objectivesQuery, submitFeedback } from "@/lib/insights-data";
+import { recommend, type Fun, type Perceived, type Recommendation } from "@/lib/recommend";
 import { cn } from "@/lib/utils";
 
 type Mode = "normal" | "practice" | "harder";
@@ -103,7 +104,6 @@ function PlayView({ a, game }: { a: Adventure; game: Game }) {
   const showHint = () => {
     if (hintsShown >= game.hints.length) return;
     setHintsShown((h) => h + 1);
-    setDemo((x) => ({ ...x, hints: { ...x.hints, [game.id]: (x.hints[game.id] ?? 0) + 1 } }));
   };
 
   const engineProps = { gameId: game.id, difficulty, onResult, onReset: () => setFeedback(null) };
@@ -111,7 +111,7 @@ function PlayView({ a, game }: { a: Adventure; game: Game }) {
   return (
     <WorkshopScene level={level} upgrades={upgrades}>
       {phase === "celebrate" && result ? (
-        <Celebrate game={game} levels={levels} result={result} replay={wasReplay || mode !== "normal"} />
+        <Celebrate a={a} game={game} levels={levels} result={result} hints={hintsShown} />
       ) : (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -154,18 +154,26 @@ function PlayView({ a, game }: { a: Adventure; game: Game }) {
   );
 }
 
-function Celebrate({ game, levels, result, replay }: { game: Game; levels: Level[]; result: CompletionResult; replay: boolean }) {
+function Celebrate({ a, game, levels, result, hints }: { a: Adventure; game: Game; levels: Level[]; result: CompletionResult; hints: number }) {
+  const qc = useQueryClient();
+  const obj = useQuery(objectivesQuery);
   const gameId = game.id;
-  const [fun, setFun] = useState<Feedback["fun"] | null>(null);
-  const [diff, setDiff] = useState<Feedback["difficulty"] | null>(null);
+  const [fun, setFun] = useState<Fun | null>(null);
+  const [diff, setDiff] = useState<Perceived | null>(null);
   const [rec, setRec] = useState<Recommendation | null>(null);
   const level = result.levelCompleted ? levels.find((l) => l.n === result.levelCompleted) ?? null : null;
   const nextLevel = level ? levels.find((l) => l.n === level.n + 1) ?? null : null;
 
+  const save = useMutation({
+    mutationFn: (v: { fun: Fun; diff: Perceived }) => submitFeedback(a.child.id, gameId, v.fun, v.diff, hints),
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ["feedback", a.child.id] });
+      setRec(recommend({ games: a.content.games, done: new Set([...a.done, gameId]), tags: obj.data?.tags ?? {} }, gameId, v.fun, v.diff));
+    },
+  });
   const submit = () => {
     if (!fun || !diff) return;
-    setDemo((x) => ({ ...x, feedback: [...x.feedback, { gameId, fun, difficulty: diff, replay, at: new Date().toISOString() }] }));
-    setRec(recommend(getDemo(), gameId, fun, diff));
+    save.mutate({ fun, diff });
   };
   const Choice = <T extends string>({ value, set, opts }: { value: T | null; set: (v: T) => void; opts: [T, string, string][] }) => (
     <div className="grid grid-cols-3 gap-2">
@@ -202,9 +210,10 @@ function Celebrate({ game, levels, result, replay }: { game: Game; levels: Level
       <Card>
         {!rec ? (
           <div className="space-y-4">
-            <div><p className="mb-2 font-extrabold">How fun was it?</p><Choice value={fun} set={setFun} opts={[["not", "😐", "Not for me"], ["okay", "🙂", "Okay"], ["loved", "🤩", "Loved it"]]} /></div>
-            <div><p className="mb-2 font-extrabold">How difficult was it?</p><Choice value={diff} set={setDiff} opts={[["easy", "🪶", "Too easy"], ["right", "👌", "Just right"], ["hard", "🧗", "Too hard"]]} /></div>
-            <BigButton onClick={submit} disabled={!fun || !diff}>See what's next</BigButton>
+            <div><p className="mb-2 font-extrabold">How fun was it?</p><Choice value={fun} set={setFun} opts={[["not_for_me", "😐", "Not for me"], ["okay", "🙂", "Okay"], ["loved", "🤩", "Loved it"]]} /></div>
+            <div><p className="mb-2 font-extrabold">How difficult was it?</p><Choice value={diff} set={setDiff} opts={[["too_easy", "🪶", "Too easy"], ["just_right", "👌", "Just right"], ["too_hard", "🧗", "Too hard"]]} /></div>
+            {save.error && <p role="alert" className="text-sm font-bold text-destructive">We couldn't save your rating. Check your connection and try again.</p>}
+            <BigButton onClick={submit} disabled={!fun || !diff || save.isPending}>{save.isPending ? "Saving…" : "See what's next"}</BigButton>
           </div>
         ) : (
           <div className="space-y-3">
