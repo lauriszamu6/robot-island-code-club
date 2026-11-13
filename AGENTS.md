@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Demo state lives in localStorage via `src/lib/demo-store.ts`; reward/progression rules are pure functions in `src/lib/rewards.ts` (tested) so UI can't duplicate payouts.
+- All games use three reusable engines (order, grid, logic) driven by data in `src/lib/game-data.ts`; add games as data, not new components.
+- Scenery is inline SVG/CSS only, independent of the optional external character API (`src/lib/character-api.ts`), which game logic must never depend on.
