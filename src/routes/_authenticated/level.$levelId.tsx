@@ -1,25 +1,22 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, Lock, Play, RotateCcw, Rocket } from "lucide-react";
-import { Card, DemoFunds, Loading, NeedsPlan } from "@/components/AppShell";
+import { Card, DemoFunds } from "@/components/AppShell";
+import { AdventureGate, type Adventure } from "@/components/AdventureGate";
 import { RobotSays } from "@/components/Robot";
 import { SkyBackdrop } from "@/components/scenery/Sky";
 import { IslandArt, ACCENT_BG } from "@/components/scenery/Island";
-import { useDemo, useIsClient } from "@/lib/demo-store";
-import { KIND_LABEL, gamesForLevel, levelByN } from "@/lib/game-data";
-import { eur, levelStatus } from "@/lib/rewards";
+import { useDemo } from "@/lib/demo-store";
+import { KIND_LABEL } from "@/lib/game-data";
+import { levelState } from "@/lib/adventure-data";
+import { eur } from "@/lib/rewards";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/level/$levelId")({
-  loader: ({ params }) => {
-    const level = levelByN(Number(params.levelId));
-    if (!level) throw notFound();
-    return { level };
-  },
-  head: ({ loaderData }) => ({
+export const Route = createFileRoute("/_authenticated/level/$levelId")({
+  head: ({ params }) => ({
     meta: [
-      { title: loaderData ? `Level ${loaderData.level.n}: ${loaderData.level.concept} — Robot Builders` : "Level — Robot Builders" },
-      { name: "description", content: loaderData ? `Three ${loaderData.level.concept.toLowerCase()} games on a floating robot workshop island.` : "A Robot Builders level." },
-      { property: "og:title", content: loaderData ? `Level ${loaderData.level.n}: ${loaderData.level.concept}` : "Robot Builders level" },
+      { title: `Level ${params.levelId} — Astrobit` },
+      { name: "description", content: "Three coding games on a floating robot workshop island." },
+      { property: "og:title", content: `Astrobit level ${params.levelId}` },
       { property: "og:description", content: "Three coding games on a floating robot workshop island." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -29,15 +26,18 @@ export const Route = createFileRoute("/level/$levelId")({
 });
 
 function LevelPage() {
-  const { level } = Route.useLoaderData();
-  const client = useIsClient();
+  const { levelId } = Route.useParams();
+  return <AdventureGate>{(a) => <LevelView a={a} n={Number(levelId)} />}</AdventureGate>;
+}
+
+function LevelView({ a, n }: { a: Adventure; n: number }) {
   const s = useDemo();
-  if (!client) return <Loading />;
-  if (!s.plan) return <NeedsPlan role={s.role} />;
-  const status = levelStatus(s, level.n);
-  const games = gamesForLevel(level.n);
+  const level = a.content.levels.find((l) => l.n === n);
+  if (!level) return <div className="mx-auto max-w-lg p-6"><Card className="text-center"><h1 className="text-2xl font-extrabold">Island not found</h1><Link to="/map" className="mt-3 inline-block font-extrabold text-teal underline">Back to the map</Link></Card></div>;
+  const games = a.content.games.filter((g) => g.level === n);
+  const status = levelState(a.content.games, a.done, n);
   const plan = s.plan;
-  const boosterPaid = s.transactions.some((t) => t.id === `level:${level.n}`);
+  const progress = new Map(a.progress.map((p) => [p.game_id, p]));
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
@@ -54,20 +54,23 @@ function LevelPage() {
           </div>
         </div>
 
-        <Card className="mt-6 bg-sun-soft">
-          <div className="flex items-start gap-3">
-            <Rocket className="mt-1 size-6 shrink-0 text-coral" />
-            <div>
-              <p className="font-extrabold">How rewards work on this island</p>
-              <p className="text-sm">Each game pays <strong>{eur(s.plan.perGame)}</strong> the first time you solve it. Finish all three to get a one-time <strong>{eur(s.plan.booster)} level booster</strong>. {boosterPaid ? "You already earned this booster." : ""} Replays are just for fun: no extra money. Your adult funds every reward.</p>
-              <DemoFunds className="mt-2 inline-flex" />
+        {plan && (
+          <Card className="mt-6 bg-sun-soft">
+            <div className="flex items-start gap-3">
+              <Rocket className="mt-1 size-6 shrink-0 text-coral" />
+              <div>
+                <p className="font-extrabold">How rewards work on this island</p>
+                <p className="text-sm">Each game pays <strong>{eur(plan.perGame)}</strong> the first time you solve it. Finish all three to get a one-time <strong>{eur(plan.booster)} level booster</strong>. Replays are just for fun: no extra money. Your adult funds every reward.</p>
+                <DemoFunds className="mt-2 inline-flex" />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         <ul className="mt-6 grid gap-4 md:grid-cols-3">
           {games.map((g, i) => {
-            const done = !!s.completed[g.id];
+            const p = progress.get(g.id);
+            const done = p?.status === "completed";
             const locked = status === "locked";
             return (
               <li key={g.id}>
@@ -76,11 +79,11 @@ function LevelPage() {
                   <h2 className="mt-1 text-xl font-extrabold">{g.title}</h2>
                   <p className="mt-1 flex-1 text-sm">{g.goal}</p>
                   <p className="mt-3 inline-flex items-center gap-1 text-sm font-extrabold">
-                    {done ? <><CheckCircle2 className="size-4" /> Completed · {eur(plan.perGame)} earned</> : locked ? <><Lock className="size-4" /> Locked</> : <>Not started · worth {eur(plan.perGame)}</>}
+                    {done ? <><CheckCircle2 className="size-4" /> Completed</> : locked ? <><Lock className="size-4" /> Locked</> : p ? <>In progress · {p.attempts} tr{p.attempts === 1 ? "y" : "ies"}</> : <>Not started</>}
                   </p>
                   {!locked && (
                     <Link to="/play/$gameId" params={{ gameId: g.id }} search={{ mode: "normal" }} className={cn("mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl chunky font-extrabold", done ? "bg-card" : "bg-coral text-primary-foreground")}>
-                      {done ? <><RotateCcw className="size-5" /> Replay (no reward)</> : <><Play className="size-5" /> Play</>}
+                      {done ? <><RotateCcw className="size-5" /> Replay</> : <><Play className="size-5" /> Play</>}
                     </Link>
                   )}
                 </Card>

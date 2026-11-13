@@ -1,7 +1,10 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { AdventureGate, type Adventure } from "@/components/AdventureGate";
+import { levelState, recordAttempt } from "@/lib/adventure-data";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Lightbulb, PartyPopper, Star, Info } from "lucide-react";
-import { Card, DemoFunds, Loading, NeedsPlan } from "@/components/AppShell";
+import { Card, DemoFunds } from "@/components/AppShell";
 import { Robot, RobotSays, type Mood } from "@/components/Robot";
 import { WorkshopScene } from "@/components/scenery/Workshop";
 import { BigButton } from "@/components/game/Controls";
@@ -9,29 +12,24 @@ import { OrderEngine } from "@/components/game/OrderEngine";
 import { GridEngine } from "@/components/game/GridEngine";
 import { LogicEngine } from "@/components/game/LogicEngine";
 import { AdultGuide } from "@/components/game/AdultGuide";
-import { getDemo, setDemo, useDemo, useIsClient } from "@/lib/demo-store";
-import { KIND_LABEL, LEVELS, gameById, type Difficulty, type GridDef, type LogicDef, type OrderDef } from "@/lib/game-data";
-import { applyCompletion, eur, isLevelComplete, isLevelUnlocked, type CompletionResult, type Feedback } from "@/lib/rewards";
+import { getDemo, setDemo } from "@/lib/demo-store";
+import { KIND_LABEL, type Game, type Level, type Difficulty, type GridDef, type LogicDef, type OrderDef } from "@/lib/game-data";
+import { applyCompletion, eur, type CompletionResult, type Feedback } from "@/lib/rewards";
 import { recommend, type Recommendation } from "@/lib/recommend";
 import { cn } from "@/lib/utils";
 
 type Mode = "normal" | "practice" | "harder";
 
-export const Route = createFileRoute("/play/$gameId")({
+export const Route = createFileRoute("/_authenticated/play/$gameId")({
   validateSearch: (s: Record<string, unknown>): { mode: Mode } => ({
     mode: s["mode"] === "practice" || s["mode"] === "harder" ? s["mode"] : "normal",
   }),
-  loader: ({ params }) => {
-    const game = gameById(params.gameId);
-    if (!game) throw notFound();
-    return { game };
-  },
-  head: ({ loaderData }) => ({
+  head: () => ({
     meta: [
-      { title: loaderData ? `${loaderData.game.title} — Robot Builders` : "Game — Robot Builders" },
-      { name: "description", content: loaderData ? loaderData.game.goal : "A Robot Builders coding game." },
-      { property: "og:title", content: loaderData ? loaderData.game.title : "Robot Builders game" },
-      { property: "og:description", content: loaderData ? loaderData.game.goal : "A coding game." },
+      { title: "Workshop game — Astrobit" },
+      { name: "description", content: "Solve a coding challenge in the robot workshop, with hints and an adult guide." },
+      { property: "og:title", content: "Astrobit workshop game" },
+      { property: "og:description", content: "A coding challenge with hints and an adult guide." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -40,12 +38,22 @@ export const Route = createFileRoute("/play/$gameId")({
 });
 
 function PlayPage() {
-  const { game } = Route.useLoaderData();
+  const { gameId } = Route.useParams();
+  return (
+    <AdventureGate>{(a) => {
+      const game = a.content.games.find((g) => g.id === gameId);
+      if (!game) return <div className="mx-auto max-w-lg p-6"><Card className="text-center"><h1 className="text-2xl font-extrabold">Game not found</h1><Link to="/map" className="mt-3 inline-block font-extrabold text-teal underline">Back to the map</Link></Card></div>;
+      return <PlayView a={a} game={game} />;
+    }}</AdventureGate>
+  );
+}
+
+function PlayView({ a, game }: { a: Adventure; game: Game }) {
   const { mode } = Route.useSearch();
-  const client = useIsClient();
-  const s = useDemo();
+  const qc = useQueryClient();
   const [phase, setPhase] = useState<"play" | "celebrate">("play");
   const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [hintsShown, setHintsShown] = useState(0);
   const [result, setResult] = useState<CompletionResult | null>(null);
   const [wasReplay, setWasReplay] = useState(false);
@@ -53,13 +61,12 @@ function PlayPage() {
   const [engineKey, setEngineKey] = useState(0);
   const completing = useRef(false);
 
-  useEffect(() => { setPhase("play"); setFeedback(null); setHintsShown(0); setResult(null); setOverride(null); setEngineKey((k) => k + 1); completing.current = false; }, [game.id, mode]);
+  useEffect(() => { setPhase("play"); setFeedback(null); setSaveError(null); setHintsShown(0); setResult(null); setOverride(null); setEngineKey((k) => k + 1); completing.current = false; }, [game.id, mode]);
 
-  if (!client) return <Loading />;
-  if (!s.plan) return <NeedsPlan role={s.role} />;
-  const level = LEVELS[game.level - 1]!;
-  const upgrades = LEVELS.filter((l) => isLevelComplete(s, l.n)).map((l) => l.n);
-  if (!isLevelUnlocked(s, game.level)) {
+  const { levels, games } = a.content;
+  const level = levels.find((l) => l.n === game.level)!;
+  const upgrades = levels.filter((l) => levelState(games, a.done, l.n) === "completed").map((l) => l.n);
+  if (levelState(games, a.done, game.level) === "locked") {
     return (
       <WorkshopScene level={level} upgrades={upgrades}>
         <Card className="mx-auto max-w-lg text-center"><Robot mood="thinking" className="mx-auto h-24 w-20" /><h1 className="mt-2 text-2xl font-extrabold">This island is still locked</h1><p className="mt-1">Finish level {game.level - 1} first.</p><Link to="/map" className="mt-4 inline-block font-extrabold text-teal underline">Back to the map</Link></Card>
@@ -67,21 +74,37 @@ function PlayPage() {
     );
   }
 
-  const difficulty: Difficulty = override ?? (mode === "practice" ? "gentle" : mode === "harder" ? "challenge" : s.difficulty);
-  const alreadyDone = !!s.completed[game.id];
+  const difficulty: Difficulty = override ?? (mode === "practice" ? "gentle" : mode === "harder" ? "challenge" : a.child.difficulty);
+  const alreadyDone = a.done.has(game.id);
   const mood: Mood = feedback ? (feedback.ok ? "celebrate" : "encourage") : hintsShown ? "thinking" : "welcome";
 
-  const onResult = (ok: boolean, msg: string) => {
+  const onResult = async (ok: boolean, msg: string) => {
     setFeedback({ ok, msg });
-    setDemo((x) => ({ ...x, runs: { ...x.runs, [game.id]: { runs: (x.runs[game.id]?.runs ?? 0) + 1, fails: (x.runs[game.id]?.fails ?? 0) + (ok ? 0 : 1) } } }));
-    if (ok && !completing.current) {
-      completing.current = true; // guards against double-click / repeated events
-      const replay = !!getDemo().completed[game.id];
-      let r: CompletionResult | null = null;
-      setDemo((x) => { const out = applyCompletion(x, game.id); r = out.result; return out.state; });
-      setWasReplay(replay);
-      setResult(r);
+    setSaveError(null);
+    if (ok) {
+      if (completing.current) return; // guards against double-click / repeated events
+      completing.current = true;
+    }
+    try {
+      const r = await recordAttempt(a.child.id, game.id, ok);
+      await qc.invalidateQueries({ queryKey: ["progress", a.child.id] });
+      if (!ok) return;
+      let cr: CompletionResult = { firstTime: r.first_completion, gameReward: 0, booster: 0, levelCompleted: r.level_completed };
+      if (r.first_completion) {
+        // Interim demo rewards (moves to the database in Core 2), synced with stored progress.
+        setDemo((x) => {
+          const completed = Object.fromEntries([...a.done].map((id) => [id, x.completed[id] ?? new Date().toISOString()]));
+          const out = applyCompletion({ ...x, completed }, game.id);
+          cr = { ...out.result, firstTime: true, levelCompleted: r.level_completed };
+          return out.state;
+        });
+      }
+      setWasReplay(!r.first_completion);
+      setResult(cr);
       setTimeout(() => setPhase("celebrate"), 700);
+    } catch {
+      if (ok) completing.current = false;
+      setSaveError("We couldn't save this to your progress. Check your connection and press Run again.");
     }
   };
   const showHint = () => {
@@ -95,7 +118,7 @@ function PlayPage() {
   return (
     <WorkshopScene level={level} upgrades={upgrades}>
       {phase === "celebrate" && result ? (
-        <Celebrate gameId={game.id} result={result} replay={wasReplay || mode !== "normal"} />
+        <Celebrate game={game} levels={levels} result={result} replay={wasReplay || mode !== "normal"} />
       ) : (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -116,6 +139,7 @@ function PlayPage() {
           </section>
           <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
             <div aria-live="polite">
+              {saveError && <p role="alert" className="mb-3 rounded-xl border-2 border-destructive bg-card p-3 text-sm font-bold text-destructive">{saveError}</p>}
               {feedback ? (
                 <div className={cn("flex items-start gap-3 rounded-2xl border-2 border-navy p-3", feedback.ok ? "bg-mint" : "bg-sun-soft")}>
                   <Robot mood={mood} className="h-16 w-12 shrink-0" />
@@ -130,20 +154,20 @@ function PlayPage() {
             </div>
             <BigButton variant="sun" onClick={showHint} disabled={hintsShown >= game.hints.length} className="self-start"><Lightbulb /> {hintsShown >= game.hints.length ? "No more hints" : `Hint (${game.hints.length - hintsShown} left)`}</BigButton>
           </div>
-          <AdultGuide game={game} ageBand={s.ageBand} difficulty={difficulty} forcedMode={mode !== "normal"} onDifficulty={(d) => { setOverride(d); setFeedback(null); }} />
+          <AdultGuide game={game} ageBand={a.child.age_range} difficulty={difficulty} forcedMode={mode !== "normal"} onDifficulty={(d) => { setOverride(d); setFeedback(null); }} />
         </div>
       )}
     </WorkshopScene>
   );
 }
 
-function Celebrate({ gameId, result, replay }: { gameId: string; result: CompletionResult; replay: boolean }) {
-  const game = gameById(gameId)!;
+function Celebrate({ game, levels, result, replay }: { game: Game; levels: Level[]; result: CompletionResult; replay: boolean }) {
+  const gameId = game.id;
   const [fun, setFun] = useState<Feedback["fun"] | null>(null);
   const [diff, setDiff] = useState<Feedback["difficulty"] | null>(null);
   const [rec, setRec] = useState<Recommendation | null>(null);
-  const level = result.levelCompleted ? LEVELS[result.levelCompleted - 1]! : null;
-  const nextLevel = level ? LEVELS[level.n] ?? null : null;
+  const level = result.levelCompleted ? levels.find((l) => l.n === result.levelCompleted) ?? null : null;
+  const nextLevel = level ? levels.find((l) => l.n === level.n + 1) ?? null : null;
 
   const submit = () => {
     if (!fun || !diff) return;

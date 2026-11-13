@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { defaultState, type DemoState } from "./rewards";
 
-const KEY = "robot-builders-demo-v1";
+// Core 2/3 placeholders (reward plan, wallet, feedback) stay local per child until those phases move them to the database.
+let KEY = "astrobit-demo-v1";
 let state: DemoState = defaultState();
 const listeners = new Set<() => void>();
 const SERVER = defaultState();
@@ -21,6 +22,10 @@ if (typeof window !== "undefined") {
   });
 }
 
+export function switchDemoScope(childId: string | null) {
+  KEY = childId ? `astrobit-demo-v1:${childId}` : "astrobit-demo-v1";
+  if (typeof window !== "undefined") { load(); listeners.forEach((l) => l()); }
+}
 export const getDemo = () => state;
 export function setDemo(fn: (s: DemoState) => DemoState) {
   state = fn(state);

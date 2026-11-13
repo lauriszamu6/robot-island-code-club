@@ -82,9 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Robot Builders — family coding adventures" },
+      { title: "Astrobit — family coding adventures" },
       { name: "description", content: "Kids 10–15 and a trusted adult explore programming together on floating robot workshop islands." },
-      { property: "og:title", content: "Robot Builders" },
+      { property: "og:title", content: "Astrobit" },
       { property: "og:description", content: "Family coding adventures on floating robot workshop islands." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

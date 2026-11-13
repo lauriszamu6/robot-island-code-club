@@ -8,12 +8,12 @@ import { Robot } from "@/components/Robot";
 import { setDemo, todayISO, useDemo, useIsClient } from "@/lib/demo-store";
 import { applyRedemption, canRedeem, earnedTotal, eur } from "@/lib/rewards";
 
-export const Route = createFileRoute("/redeem")({
+export const Route = createFileRoute("/_authenticated/redeem")({
   head: () => ({
     meta: [
-      { title: "Mock redemption — Robot Builders" },
+      { title: "Mock redemption — Astrobit" },
       { name: "description", content: "Adult-controlled mock redemption of earned demo rewards, available on or after the chosen date." },
-      { property: "og:title", content: "Mock redemption — Robot Builders" },
+      { property: "og:title", content: "Mock redemption — Astrobit" },
       { property: "og:description", content: "Simulated, adult-controlled redemption. No real money." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -10,91 +10,118 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdultRouteImport } from './routes/adult'
-import { Route as MapRouteImport } from './routes/map'
-import { Route as RedeemRouteImport } from './routes/redeem'
-import { Route as RewardsRouteImport } from './routes/rewards'
-import { Route as SetupRouteImport } from './routes/setup'
-import { Route as LevelLevelIdRouteImport } from './routes/level.$levelId'
-import { Route as PlayGameIdRouteImport } from './routes/play.$gameId'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdultRouteImport } from './routes/_authenticated/adult'
+import { Route as AuthenticatedChildrenRouteImport } from './routes/_authenticated/children'
+import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
+import { Route as AuthenticatedRedeemRouteImport } from './routes/_authenticated/redeem'
+import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
+import { Route as AuthenticatedSetupRouteImport } from './routes/_authenticated/setup'
+import { Route as AuthenticatedLevelLevelIdRouteImport } from './routes/_authenticated/level.$levelId'
+import { Route as AuthenticatedPlayGameIdRouteImport } from './routes/_authenticated/play.$gameId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdultRoute = AdultRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdultRoute = AuthenticatedAdultRouteImport.update({
   id: '/adult',
   path: '/adult',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const MapRoute = MapRouteImport.update({
+const AuthenticatedChildrenRoute = AuthenticatedChildrenRouteImport.update({
+  id: '/children',
+  path: '/children',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMapRoute = AuthenticatedMapRouteImport.update({
   id: '/map',
   path: '/map',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const RedeemRoute = RedeemRouteImport.update({
+const AuthenticatedRedeemRoute = AuthenticatedRedeemRouteImport.update({
   id: '/redeem',
   path: '/redeem',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const RewardsRoute = RewardsRouteImport.update({
+const AuthenticatedRewardsRoute = AuthenticatedRewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const SetupRoute = SetupRouteImport.update({
+const AuthenticatedSetupRoute = AuthenticatedSetupRouteImport.update({
   id: '/setup',
   path: '/setup',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const LevelLevelIdRoute = LevelLevelIdRouteImport.update({
-  id: '/level/$levelId',
-  path: '/level/$levelId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlayGameIdRoute = PlayGameIdRouteImport.update({
+const AuthenticatedLevelLevelIdRoute =
+  AuthenticatedLevelLevelIdRouteImport.update({
+    id: '/level/$levelId',
+    path: '/level/$levelId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlayGameIdRoute = AuthenticatedPlayGameIdRouteImport.update({
   id: '/play/$gameId',
   path: '/play/$gameId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/adult': typeof AdultRoute
-  '/map': typeof MapRoute
-  '/redeem': typeof RedeemRoute
-  '/rewards': typeof RewardsRoute
-  '/setup': typeof SetupRoute
-  '/level/$levelId': typeof LevelLevelIdRoute
-  '/play/$gameId': typeof PlayGameIdRoute
+  '/auth': typeof AuthRoute
+  '/adult': typeof AuthenticatedAdultRoute
+  '/children': typeof AuthenticatedChildrenRoute
+  '/map': typeof AuthenticatedMapRoute
+  '/redeem': typeof AuthenticatedRedeemRoute
+  '/rewards': typeof AuthenticatedRewardsRoute
+  '/setup': typeof AuthenticatedSetupRoute
+  '/level/$levelId': typeof AuthenticatedLevelLevelIdRoute
+  '/play/$gameId': typeof AuthenticatedPlayGameIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/adult': typeof AdultRoute
-  '/map': typeof MapRoute
-  '/redeem': typeof RedeemRoute
-  '/rewards': typeof RewardsRoute
-  '/setup': typeof SetupRoute
-  '/level/$levelId': typeof LevelLevelIdRoute
-  '/play/$gameId': typeof PlayGameIdRoute
+  '/auth': typeof AuthRoute
+  '/adult': typeof AuthenticatedAdultRoute
+  '/children': typeof AuthenticatedChildrenRoute
+  '/map': typeof AuthenticatedMapRoute
+  '/redeem': typeof AuthenticatedRedeemRoute
+  '/rewards': typeof AuthenticatedRewardsRoute
+  '/setup': typeof AuthenticatedSetupRoute
+  '/level/$levelId': typeof AuthenticatedLevelLevelIdRoute
+  '/play/$gameId': typeof AuthenticatedPlayGameIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/adult': typeof AdultRoute
-  '/map': typeof MapRoute
-  '/redeem': typeof RedeemRoute
-  '/rewards': typeof RewardsRoute
-  '/setup': typeof SetupRoute
-  '/level/$levelId': typeof LevelLevelIdRoute
-  '/play/$gameId': typeof PlayGameIdRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/adult': typeof AuthenticatedAdultRoute
+  '/_authenticated/children': typeof AuthenticatedChildrenRoute
+  '/_authenticated/map': typeof AuthenticatedMapRoute
+  '/_authenticated/redeem': typeof AuthenticatedRedeemRoute
+  '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
+  '/_authenticated/setup': typeof AuthenticatedSetupRoute
+  '/_authenticated/level/$levelId': typeof AuthenticatedLevelLevelIdRoute
+  '/_authenticated/play/$gameId': typeof AuthenticatedPlayGameIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/adult'
+    | '/children'
     | '/map'
     | '/redeem'
     | '/rewards'
@@ -104,7 +131,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/adult'
+    | '/children'
     | '/map'
     | '/redeem'
     | '/rewards'
@@ -114,24 +143,22 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/adult'
-    | '/map'
-    | '/redeem'
-    | '/rewards'
-    | '/setup'
-    | '/level/$levelId'
-    | '/play/$gameId'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/adult'
+    | '/_authenticated/children'
+    | '/_authenticated/map'
+    | '/_authenticated/redeem'
+    | '/_authenticated/rewards'
+    | '/_authenticated/setup'
+    | '/_authenticated/level/$levelId'
+    | '/_authenticated/play/$gameId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdultRoute: typeof AdultRoute
-  MapRoute: typeof MapRoute
-  RedeemRoute: typeof RedeemRoute
-  RewardsRoute: typeof RewardsRoute
-  SetupRoute: typeof SetupRoute
-  LevelLevelIdRoute: typeof LevelLevelIdRoute
-  PlayGameIdRoute: typeof PlayGameIdRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -143,67 +170,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/adult': {
-      id: '/adult'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/adult': {
+      id: '/_authenticated/adult'
       path: '/adult'
       fullPath: '/adult'
-      preLoaderRoute: typeof AdultRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAdultRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/map': {
-      id: '/map'
+    '/_authenticated/children': {
+      id: '/_authenticated/children'
+      path: '/children'
+      fullPath: '/children'
+      preLoaderRoute: typeof AuthenticatedChildrenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/map': {
+      id: '/_authenticated/map'
       path: '/map'
       fullPath: '/map'
-      preLoaderRoute: typeof MapRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/redeem': {
-      id: '/redeem'
+    '/_authenticated/redeem': {
+      id: '/_authenticated/redeem'
       path: '/redeem'
       fullPath: '/redeem'
-      preLoaderRoute: typeof RedeemRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedRedeemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/rewards': {
-      id: '/rewards'
+    '/_authenticated/rewards': {
+      id: '/_authenticated/rewards'
       path: '/rewards'
       fullPath: '/rewards'
-      preLoaderRoute: typeof RewardsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedRewardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/setup': {
-      id: '/setup'
+    '/_authenticated/setup': {
+      id: '/_authenticated/setup'
       path: '/setup'
       fullPath: '/setup'
-      preLoaderRoute: typeof SetupRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedSetupRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/level/$levelId': {
-      id: '/level/$levelId'
+    '/_authenticated/level/$levelId': {
+      id: '/_authenticated/level/$levelId'
       path: '/level/$levelId'
       fullPath: '/level/$levelId'
-      preLoaderRoute: typeof LevelLevelIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedLevelLevelIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/play/$gameId': {
-      id: '/play/$gameId'
+    '/_authenticated/play/$gameId': {
+      id: '/_authenticated/play/$gameId'
       path: '/play/$gameId'
       fullPath: '/play/$gameId'
-      preLoaderRoute: typeof PlayGameIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedPlayGameIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdultRoute: typeof AuthenticatedAdultRoute
+  AuthenticatedChildrenRoute: typeof AuthenticatedChildrenRoute
+  AuthenticatedMapRoute: typeof AuthenticatedMapRoute
+  AuthenticatedRedeemRoute: typeof AuthenticatedRedeemRoute
+  AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
+  AuthenticatedSetupRoute: typeof AuthenticatedSetupRoute
+  AuthenticatedLevelLevelIdRoute: typeof AuthenticatedLevelLevelIdRoute
+  AuthenticatedPlayGameIdRoute: typeof AuthenticatedPlayGameIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdultRoute: AuthenticatedAdultRoute,
+  AuthenticatedChildrenRoute: AuthenticatedChildrenRoute,
+  AuthenticatedMapRoute: AuthenticatedMapRoute,
+  AuthenticatedRedeemRoute: AuthenticatedRedeemRoute,
+  AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
+  AuthenticatedSetupRoute: AuthenticatedSetupRoute,
+  AuthenticatedLevelLevelIdRoute: AuthenticatedLevelLevelIdRoute,
+  AuthenticatedPlayGameIdRoute: AuthenticatedPlayGameIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdultRoute: AdultRoute,
-  MapRoute: MapRoute,
-  RedeemRoute: RedeemRoute,
-  RewardsRoute: RewardsRoute,
-  SetupRoute: SetupRoute,
-  LevelLevelIdRoute: LevelLevelIdRoute,
-  PlayGameIdRoute: PlayGameIdRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,12 +7,12 @@ import { ageDefaultDifficulty, earnedTotal, eur, maxCost, validatePlan } from "@
 import type { AgeBand, Difficulty } from "@/lib/game-data";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/setup")({
+export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
     meta: [
-      { title: "Adult setup — Robot Builders" },
+      { title: "Adult setup — Astrobit" },
       { name: "description", content: "Set the age band, parent-funded rewards, level boosters, budget and the child's goal." },
-      { property: "og:title", content: "Adult setup — Robot Builders" },
+      { property: "og:title", content: "Adult setup — Astrobit" },
       { property: "og:description", content: "Plan parent-funded rewards and a savings goal (demo funds)." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -45,10 +45,9 @@ function Setup() {
   const save = () => {
     const plan = { perGame: f.perGame, booster: f.booster, budget, goalName: f.goalName, goalTarget: f.goalTarget, redeemDate: f.redeemDate };
     const errs = validatePlan(s, plan, todayISO());
-    if (!f.ageBand) errs.unshift("Choose an age band.");
     setErrors(errs);
     if (errs.length) return;
-    setDemo((x) => ({ ...x, childName: f.childName.trim() || "Builder", ageBand: f.ageBand, difficulty: f.difficulty, plan: { ...plan, confirmedAt: new Date().toISOString() } }));
+    setDemo((x) => ({ ...x, plan: { ...plan, confirmedAt: new Date().toISOString() } }));
     nav({ to: "/adult" });
   };
 
@@ -58,33 +57,10 @@ function Setup() {
       <p className="mt-1 text-muted-foreground">A few choices, then the builder can start. You fund every reward; nobody else adds money.</p>
       <DemoFunds className="mt-4" />
 
-      <Card className="mt-6 space-y-5">
-        <h2 className="text-xl font-extrabold">1. About the builder</h2>
-        <label className="block font-bold">Child's first name (optional)<input className={field} value={f.childName} onChange={(e) => setF({ ...f, childName: e.target.value })} placeholder="e.g. Sam" maxLength={30} /></label>
-        <fieldset>
-          <legend className="font-bold">Age band</legend>
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            {(["10-12", "13-15"] as AgeBand[]).map((b) => (
-              <button key={b} type="button" aria-pressed={f.ageBand === b} onClick={() => setF({ ...f, ageBand: b, difficulty: ageDefaultDifficulty(b) })} className={cn("rounded-2xl border-2 border-navy px-4 py-3 text-lg font-extrabold", f.ageBand === b ? "bg-teal text-secondary-foreground" : "bg-card")}>{b.replace("-", "–")} years</button>
-            ))}
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">We suggest explanation detail and starting difficulty from this. You can override it any time. The same five levels apply to everyone.</p>
-        </fieldset>
-        <fieldset>
-          <legend className="font-bold">Starting difficulty {f.ageBand && <span className="font-semibold text-muted-foreground">(suggested: {ageDefaultDifficulty(f.ageBand) === "gentle" ? "Gentle" : "Challenge"})</span>}</legend>
-          <div className="mt-2 grid grid-cols-2 gap-3">
-            {(["gentle", "challenge"] as Difficulty[]).map((d) => (
-              <button key={d} type="button" aria-pressed={f.difficulty === d} onClick={() => setF({ ...f, difficulty: d })} className={cn("rounded-2xl border-2 border-navy px-4 py-3 text-left", f.difficulty === d ? "bg-navy text-on-dark" : "bg-card")}>
-                <span className="block font-extrabold">{d === "gentle" ? "Gentle" : "Challenge"}</span>
-                <span className="text-sm">{d === "gentle" ? "More blocks allowed, fewer choices" : "Tighter block limits, stars, extra decoy blocks"}</span>
-              </button>
-            ))}
-          </div>
-        </fieldset>
-      </Card>
+      <p className="mt-4 rounded-xl bg-lavender-soft p-3 text-sm font-bold">This reward plan applies to the child profile currently selected. Nickname, age range and difficulty are managed under Profiles.</p>
 
       <Card className="mt-6 space-y-5">
-        <h2 className="text-xl font-extrabold">2. Rewards you fund</h2>
+        <h2 className="text-xl font-extrabold">1. Rewards you fund</h2>
         {locked && <p className="rounded-xl bg-mint px-3 py-2 text-sm font-bold">Rewards have already been earned ({eur(earnedTotal(s))}). You can raise amounts, but not lower them.</p>}
         <div>
           <p className="font-bold">Reward per game (first completion only)</p>
@@ -109,7 +85,7 @@ function Setup() {
       </Card>
 
       <Card className="mt-6 space-y-5">
-        <h2 className="text-xl font-extrabold">3. The builder's goal</h2>
+        <h2 className="text-xl font-extrabold">2. The builder's goal</h2>
         <label className="block font-bold">What are they saving for? (let the child choose)<input className={field} value={f.goalName} onChange={(e) => setF({ ...f, goalName: e.target.value })} placeholder="e.g. Skateboard, or 'savings'" maxLength={40} /></label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block font-bold">Target amount (€)<input type="number" min={1} className={field} value={f.goalTarget} onChange={(e) => setF({ ...f, goalTarget: Number(e.target.value) })} /></label>

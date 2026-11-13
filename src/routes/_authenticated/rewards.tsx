@@ -8,12 +8,12 @@ import { useDemo, useIsClient, todayISO } from "@/lib/demo-store";
 import { eur } from "@/lib/rewards";
 import { nextGame } from "@/lib/recommend";
 
-export const Route = createFileRoute("/rewards")({
+export const Route = createFileRoute("/_authenticated/rewards")({
   head: () => ({
     meta: [
-      { title: "My goal & rewards — Robot Builders" },
+      { title: "My goal & rewards — Astrobit" },
       { name: "description", content: "Savings goal progress, earned game rewards and level boosters, and what's still available to earn." },
-      { property: "og:title", content: "My goal & rewards — Robot Builders" },
+      { property: "og:title", content: "My goal & rewards — Astrobit" },
       { property: "og:description", content: "Goal progress and reward history (demo funds)." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -57,3 +57,20 @@ describe("rewards", () => {
       }
   });
 });
+
+import { levelState, nextOpenGame, suggestedDifficulty } from "@/lib/adventure-data";
+import { GAMES } from "@/lib/game-data";
+describe("adventure progression (Core 1)", () => {
+  it("level 2 unlocks only after all three level-1 games", () => {
+    expect(levelState(GAMES, new Set(["1-1", "1-2"]), 2)).toBe("locked");
+    expect(levelState(GAMES, new Set(["1-1", "1-2", "1-3"]), 2)).toBe("available");
+    expect(levelState(GAMES, new Set(["1-1", "1-2", "1-3"]), 1)).toBe("completed");
+  });
+  it("next game skips completed and locked games", () => {
+    expect(nextOpenGame(GAMES, new Set(["1-1"]))?.id).toBe("1-2");
+  });
+  it("age 10–12 suggests gentle, 13–15 suggests challenge", () => {
+    expect(suggestedDifficulty("10-12")).toBe("gentle");
+    expect(suggestedDifficulty("13-15")).toBe("challenge");
+  });
+});

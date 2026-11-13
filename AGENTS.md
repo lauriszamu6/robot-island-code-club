@@ -30,6 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Demo state lives in localStorage via `src/lib/demo-store.ts`; reward/progression rules are pure functions in `src/lib/rewards.ts` (tested) so UI can't duplicate payouts.
-- All games use three reusable engines (order, grid, logic) driven by data in `src/lib/game-data.ts`; add games as data, not new components.
+- Levels, games, child profiles and game progress live in the database; screens read them via `src/lib/adventure-data.ts` and routes under `src/routes/_authenticated/`. Progress is written only through the `record_game_attempt` database function, which enforces ownership, level unlocks and one row per child+game.
+- Reward plan, wallet and feedback are still local per-child placeholders in `src/lib/demo-store.ts` until their phases move them to the database; reward rules stay pure functions in `src/lib/rewards.ts` (tested).
+- All games use three reusable engines (order, grid, logic) driven by each game's stored `config`; `src/lib/game-data.ts` keeps the types and the source the seed migration was generated from.
 - Scenery is inline SVG/CSS only, independent of the optional external character API (`src/lib/character-api.ts`), which game logic must never depend on.

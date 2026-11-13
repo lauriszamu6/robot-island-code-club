@@ -1,23 +1,24 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Lock, Play, Star, Flag } from "lucide-react";
-import { Card, DemoFunds, Loading, NeedsPlan } from "@/components/AppShell";
+import { Card, DemoFunds } from "@/components/AppShell";
 import { GoalMeter } from "@/components/GoalMeter";
 import { RobotSays } from "@/components/Robot";
 import { SkyBackdrop } from "@/components/scenery/Sky";
 import { DottedPath, IslandArt, ACCENT_BG } from "@/components/scenery/Island";
-import { useDemo, useIsClient, todayISO } from "@/lib/demo-store";
-import { LEVELS, gamesForLevel } from "@/lib/game-data";
-import { nextGame } from "@/lib/recommend";
-import { eur, levelStatus, completedCount, type DemoState } from "@/lib/rewards";
+import { useDemo, todayISO } from "@/lib/demo-store";
+import type { Game, Level } from "@/lib/game-data";
+import { levelState, nextOpenGame } from "@/lib/adventure-data";
+import { AdventureGate, type Adventure } from "@/components/AdventureGate";
+import { eur } from "@/lib/rewards";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 
-export const Route = createFileRoute("/map")({
+export const Route = createFileRoute("/_authenticated/map")({
   head: () => ({
     meta: [
-      { title: "Island map — Robot Builders" },
+      { title: "Island map — Astrobit" },
       { name: "description", content: "Five floating workshop islands, each with three coding games: sequences, loops, conditions, variables and debugging." },
-      { property: "og:title", content: "Island map — Robot Builders" },
+      { property: "og:title", content: "Island map — Astrobit" },
       { property: "og:description", content: "Travel across five floating workshop islands of coding games." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -27,13 +28,14 @@ export const Route = createFileRoute("/map")({
 });
 
 function MapPage() {
-  const client = useIsClient();
-  const s = useDemo();
-  if (!client) return <Loading />;
-  if (!s.plan) return <NeedsPlan role={s.role} />;
-  const next = nextGame(s);
-  const done = completedCount(s);
+  return <AdventureGate>{(a) => <MapView a={a} />}</AdventureGate>;
+}
 
+function MapView({ a }: { a: Adventure }) {
+  const s = useDemo();
+  const { levels, games } = a.content;
+  const next = nextOpenGame(games, a.done);
+  const done = a.done.size;
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
       <SkyBackdrop />
@@ -41,14 +43,14 @@ function MapPage() {
         <div className="order-2 lg:order-1">
           <h1 className="sr-only">Island map</h1>
           <ol className="flex flex-col">
-            {LEVELS.map((l, i) => {
-              const st = levelStatus(s, l.n);
+            {levels.map((l, i) => {
+              const st = levelState(games, a.done, l.n);
               const isNext = next?.level === l.n;
               return (
                 <li key={l.n}>
                   {i > 0 && <DottedPath flip={i % 2 === 0} active={st !== "locked"} />}
                   <div className={cn("flex", i % 2 === 0 ? "justify-start sm:pl-6" : "justify-end sm:pr-6")}>
-                    <IslandCard level={l} status={st} isNext={isNext} s={s} />
+                    <IslandCard level={l} status={st} isNext={isNext} games={games.filter((g) => g.level === l.n)} done={a.done} />
                   </div>
                 </li>
               );
@@ -56,32 +58,31 @@ function MapPage() {
           </ol>
         </div>
         <aside className="order-1 flex flex-col gap-4 lg:order-2 lg:sticky lg:top-20 lg:self-start">
-          <RobotSays mood={done === 15 ? "celebrate" : "welcome"}>
-            {done === 15 ? "Every island is fixed! Amazing building." : `Hi ${s.childName || "builder"}! ${done} of 15 games done.`}
+          <RobotSays mood={done === games.length ? "celebrate" : "welcome"}>
+            {done === games.length ? "Every island is fixed! Amazing building." : `Hi ${a.child.nickname}! ${done} of ${games.length} games done.`}
           </RobotSays>
           {next && (
             <Card className="bg-teal-soft">
               <p className="text-sm font-extrabold uppercase tracking-wide">Recommended next</p>
               <p className="mt-1 text-xl font-extrabold">{next.title}</p>
-              <p className="text-sm">Level {next.level} · {LEVELS[next.level - 1]!.concept}</p>
+              <p className="text-sm">Level {next.level} · {levels.find((l) => l.n === next.level)?.concept}</p>
               <Link to="/play/$gameId" params={{ gameId: next.id }} search={{ mode: "normal" }} className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-2xl chunky bg-coral px-5 font-extrabold text-primary-foreground"><Play className="size-5" /> Play</Link>
             </Card>
           )}
-          <Card>
+          {s.plan && <Card>
             <GoalMeter s={s} compact />
             <p className="mt-3 text-sm"><strong>Next reward:</strong> {next ? `${eur(s.plan.perGame)} for finishing “${next.title}”` : "all earned!"}</p>
             <p className="text-sm"><strong>Redeem from:</strong> {format(parseISO(s.plan.redeemDate), "d MMM yyyy")}{todayISO() >= s.plan.redeemDate && " (ready!)"}</p>
             <Link to="/rewards" className="mt-3 inline-block text-sm font-extrabold text-teal underline underline-offset-4">See goal & history</Link>
             <DemoFunds className="mt-3" />
-          </Card>
+          </Card>}
         </aside>
       </div>
     </div>
   );
 }
 
-function IslandCard({ level, status, isNext, s }: { level: (typeof LEVELS)[number]; status: "locked" | "available" | "completed"; isNext: boolean; s: DemoState }) {
-  const games = gamesForLevel(level.n);
+function IslandCard({ level, status, isNext, games, done }: { level: Level; status: "locked" | "available" | "completed"; isNext: boolean; games: Game[]; done: Set<string> }) {
   const badge = {
     locked: { icon: <Lock className="size-4" />, text: "Locked", cls: "bg-cream-deep" },
     available: { icon: <Play className="size-4" />, text: isNext ? "Next up" : "Open", cls: "bg-sun" },
@@ -102,7 +103,7 @@ function IslandCard({ level, status, isNext, s }: { level: (typeof LEVELS)[numbe
         </div>
         <ul className="mt-2 flex gap-2" aria-label="Games">
           {games.map((g, i) => {
-            const d = !!s.completed[g.id];
+            const d = done.has(g.id);
             return (
               <li key={g.id} className={cn("flex flex-1 items-center justify-center gap-1 rounded-lg border-2 py-1 text-xs font-bold", d ? "border-navy bg-mint" : status === "locked" ? "border-navy/30 text-muted-foreground" : "border-navy bg-cream")}>
                 {d ? <Star className="size-3.5 fill-sun" /> : status === "locked" ? <Lock className="size-3.5" /> : <span className="size-3 rounded-full border-2 border-navy" />}
