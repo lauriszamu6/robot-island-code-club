@@ -1,3 +1,4 @@
+import { AdultGate } from "@/components/AdultGate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/setup")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <WalletGate>{(x) => <Setup x={x} />}</WalletGate>,
+  component: () => <AdultGate><WalletGate>{(x) => <Setup x={x} />}</WalletGate></AdultGate>,
 });
 
 const inDays = (d: number) => new Date(Date.now() + d * 864e5).toISOString().slice(0, 10);

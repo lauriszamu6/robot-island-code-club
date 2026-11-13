@@ -1,3 +1,4 @@
+import { AdultGate } from "@/components/AdultGate";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/adult")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Adult,
+  component: () => <AdultGate><Adult /></AdultGate>,
 });
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {

@@ -1,3 +1,5 @@
+import { setMode } from "@/lib/session-mode";
+import { AdultGate } from "@/components/AdultGate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -24,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/children")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Children,
+  component: () => <AdultGate><Children /></AdultGate>,
 });
 
 function Children() {
@@ -52,7 +54,7 @@ function Children() {
     onSuccess: (id) => { if (id === active) setActiveChild(null); qc.invalidateQueries({ queryKey: ["children"] }); },
   });
 
-  const pick = (id: string, role: "child" | "adult") => { setActiveChild(id); setDemo((x) => ({ ...x, role })); nav({ to: role === "child" ? "/map" : "/adult" }); };
+  const pick = (id: string, role: "child" | "adult") => { setActiveChild(id); if (role === "child") setMode("child"); nav({ to: role === "child" ? "/map" : "/adult" }); };
 
   if (kids.isLoading) return <Loading />;
   if (kids.error) return <ErrorState onRetry={() => kids.refetch()} />;

@@ -35,3 +35,4 @@ use the editor.
 - All games use three reusable engines (order, grid, logic) driven by each game's stored `config`; `src/lib/game-data.ts` keeps the types and the source the seed migration was generated from.
 - Scenery is inline SVG/CSS only, independent of the optional external character API (`src/lib/character-api.ts`), which game logic must never depend on.
 - Learning objectives, game objective tags and game feedback live in the database (`src/lib/insights-data.ts`); feedback is written only by `submit_game_feedback` (own child, solved game). Recommendations and adult observations are pure rules in `src/lib/recommend.ts` (tested) over stored data; never infer personality or career fit.
+- Adult/child hand-off mode lives in `src/lib/session-mode.ts`; adult-only routes wrap in `AdultGate`, which requires password (or fresh Google) re-auth in child mode. It is a shared-device lock only — data isolation is always enforced by backend RLS/functions.

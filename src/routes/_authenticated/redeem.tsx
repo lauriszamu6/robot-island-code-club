@@ -1,3 +1,4 @@
+import { AdultGate } from "@/components/AdultGate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -7,7 +8,7 @@ import { Card, DemoFunds } from "@/components/AppShell";
 import { WalletGate, type WithWallet } from "@/components/WalletGate";
 import { BigButton } from "@/components/game/Controls";
 import { Robot } from "@/components/Robot";
-import { todayISO, useDemo } from "@/lib/demo-store";
+import { todayISO } from "@/lib/demo-store";
 import { euro, redeemGoal } from "@/lib/wallet-data";
 
 export const Route = createFileRoute("/_authenticated/redeem")({
@@ -21,11 +22,10 @@ export const Route = createFileRoute("/_authenticated/redeem")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <WalletGate>{(x) => <Redeem x={x} />}</WalletGate>,
+  component: () => <AdultGate><WalletGate>{(x) => <Redeem x={x} />}</WalletGate></AdultGate>,
 });
 
 function Redeem({ x }: { x: WithWallet }) {
-  const s = useDemo();
   const qc = useQueryClient();
   const { wallet: w, sum, child } = x;
   const [confirming, setConfirming] = useState(false);
@@ -45,7 +45,6 @@ function Redeem({ x }: { x: WithWallet }) {
         <Card><p className="font-bold">No savings goal yet for {child.nickname}.</p><Link to="/setup" className="mt-2 inline-block font-bold text-teal underline">Set up rewards</Link></Card>
       ) : (
         <>
-          {s.role !== "adult" && <p className="rounded-xl bg-lavender-soft p-3 text-sm font-bold">Redemption is controlled by the adult. Switch to the adult view to continue.</p>}
           <Card className="shadow-none">
             {goal.redeemed_at && redemption ? (
               <div className="text-center">
@@ -60,7 +59,7 @@ function Redeem({ x }: { x: WithWallet }) {
                 <p><strong>{child.nickname}'s earned balance:</strong> {euro(sum.childBalance)}</p>
                 <p className="flex items-center gap-2"><Clock className="size-4" /><strong>Eligible from:</strong> {format(parseISO(goal.redeem_date), "d MMMM yyyy")}</p>
                 {!eligible && <p className="rounded-xl bg-sun-soft p-3 text-sm font-bold">{sum.earned === 0 ? "Nothing earned yet." : `Not yet. Redemption opens on ${format(parseISO(goal.redeem_date), "d MMM yyyy")}.`}</p>}
-                {eligible && s.role === "adult" && !confirming && <BigButton onClick={() => setConfirming(true)}>Redeem {euro(sum.childBalance)} (simulated)</BigButton>}
+                {eligible && !confirming && <BigButton onClick={() => setConfirming(true)}>Redeem {euro(sum.childBalance)} (simulated)</BigButton>}
                 {confirming && (
                   <div className="rounded-2xl border-2 border-navy p-4">
                     <p className="font-bold">Confirm you've handed over {euro(sum.childBalance)} for “{goal.name}” outside the app?</p>
