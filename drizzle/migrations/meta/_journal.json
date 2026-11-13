@@ -8,6 +8,13 @@
       "when": 1794596900152,
       "tag": "0000_core1_guided_adventures",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794597594875,
+      "tag": "0001_core2_rewards_wallet",
+      "breakpoints": true
     }
   ]
 }

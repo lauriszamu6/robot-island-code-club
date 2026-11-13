@@ -30,7 +30,7 @@ export function AppHeader() {
     setDemo((x) => ({ ...x, role }));
     nav({ to: role === "child" ? "/map" : x(s) });
   };
-  const x = (st: typeof s) => (st.plan ? "/adult" : "/setup");
+  const x = (_st: typeof s) => "/adult" as const;
   return (
     <header className="sticky top-0 z-30 border-b-2 border-navy bg-cream/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-2 px-3">
@@ -54,7 +54,7 @@ export function AppHeader() {
           <button onClick={() => switchRole("child")} aria-pressed={s.role === "child"} className={cn("inline-flex items-center gap-1 rounded-xl border-2 border-navy px-2 py-1.5 text-xs font-extrabold", s.role === "child" ? "bg-teal text-secondary-foreground" : "bg-card")}><Baby className="size-4" /> Child</button>
           <button onClick={() => switchRole("adult")} aria-pressed={s.role === "adult"} className={cn("inline-flex items-center gap-1 rounded-xl border-2 border-navy px-2 py-1.5 text-xs font-extrabold", s.role === "adult" ? "bg-navy text-on-dark" : "bg-card")}><ShieldCheck className="size-4" /> Adult</button>
           {signedIn && <Link to="/children" className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-bold hover:bg-teal-soft" title="Child profiles"><Users className="size-4" /><span className="hidden sm:inline">Profiles</span></Link>}
-          <button onClick={() => { if (window.confirm("Reset this child's demo reward data (plan and history)? Saved game progress is kept.")) { resetDemo(); } }} className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-bold text-muted-foreground hover:bg-coral/15" title="Reset demo rewards"><RotateCcw className="size-4" /><span className="hidden xl:inline">Reset demo rewards</span></button>
+          <button onClick={() => { if (window.confirm("Reset this child's ratings and hint counts on this device? Saved progress and the reward wallet are kept.")) { resetDemo(); } }} className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-bold text-muted-foreground hover:bg-coral/15" title="Reset ratings & hints"><RotateCcw className="size-4" /><span className="hidden xl:inline">Reset ratings</span></button>
           {signedIn ? <button onClick={signOut} className="inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-bold hover:bg-coral/15" title="Sign out"><LogOut className="size-4" /><span className="hidden sm:inline">Sign out</span></button>
             : <Link to="/auth" className="rounded-xl border-2 border-navy bg-card px-2 py-1.5 text-xs font-extrabold">Sign in</Link>}
         </div>

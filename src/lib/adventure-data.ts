@@ -48,7 +48,7 @@ export const progressQuery = (childId: string) => queryOptions({
 export async function recordAttempt(childId: string, gameId: string, success: boolean) {
   const { data, error } = await supabase.rpc("record_game_attempt", { _child_id: childId, _game_id: gameId, _success: success });
   if (error) throw error;
-  return data as { first_completion: boolean; level_completed: number | null };
+  return data as { first_completion: boolean; level_completed: number | null; game_reward_cents: number; booster_cents: number };
 }
 
 // Pure helpers (tested)

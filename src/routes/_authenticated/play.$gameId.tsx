@@ -1,3 +1,4 @@
+import { euro } from "@/lib/wallet-data";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AdventureGate, type Adventure } from "@/components/AdventureGate";
@@ -14,7 +15,7 @@ import { LogicEngine } from "@/components/game/LogicEngine";
 import { AdultGuide } from "@/components/game/AdultGuide";
 import { getDemo, setDemo } from "@/lib/demo-store";
 import { KIND_LABEL, type Game, type Level, type Difficulty, type GridDef, type LogicDef, type OrderDef } from "@/lib/game-data";
-import { applyCompletion, eur, type CompletionResult, type Feedback } from "@/lib/rewards";
+import { type CompletionResult, type Feedback } from "@/lib/rewards";
 import { recommend, type Recommendation } from "@/lib/recommend";
 import { cn } from "@/lib/utils";
 
@@ -89,16 +90,8 @@ function PlayView({ a, game }: { a: Adventure; game: Game }) {
       const r = await recordAttempt(a.child.id, game.id, ok);
       await qc.invalidateQueries({ queryKey: ["progress", a.child.id] });
       if (!ok) return;
-      let cr: CompletionResult = { firstTime: r.first_completion, gameReward: 0, booster: 0, levelCompleted: r.level_completed };
-      if (r.first_completion) {
-        // Interim demo rewards (moves to the database in Core 2), synced with stored progress.
-        setDemo((x) => {
-          const completed = Object.fromEntries([...a.done].map((id) => [id, x.completed[id] ?? new Date().toISOString()]));
-          const out = applyCompletion({ ...x, completed }, game.id);
-          cr = { ...out.result, firstTime: true, levelCompleted: r.level_completed };
-          return out.state;
-        });
-      }
+      const cr: CompletionResult = { firstTime: r.first_completion, gameReward: r.game_reward_cents ?? 0, booster: r.booster_cents ?? 0, levelCompleted: r.level_completed };
+      await qc.invalidateQueries({ queryKey: ["wallet", a.child.id] });
       setWasReplay(!r.first_completion);
       setResult(cr);
       setTimeout(() => setPhase("celebrate"), 700);
@@ -191,8 +184,8 @@ function Celebrate({ game, levels, result, replay }: { game: Game; levels: Level
         <h1 className="mt-2 flex items-center justify-center gap-2 text-3xl font-extrabold"><PartyPopper className="size-7 text-coral" /> {game.title} solved!</h1>
         {result.firstTime ? (
           <div className="mt-4 space-y-2">
-            <p className="text-lg">You earned <strong className="rounded-lg bg-sun px-2 font-mono">{eur(result.gameReward)}</strong> game reward.</p>
-            {level && <p className="text-lg">Island complete! Level booster: <strong className="rounded-lg bg-sun px-2 font-mono">{eur(result.booster)}</strong></p>}
+            {result.gameReward > 0 ? <p className="text-lg">You earned <strong className="rounded-lg bg-sun px-2 font-mono">{euro(result.gameReward)}</strong> game reward.</p> : <p className="text-lg">First solve saved! (No reward plan is active, so no money this time.)</p>}
+            {level && result.booster > 0 && <p className="text-lg">Island complete! Level booster: <strong className="rounded-lg bg-sun px-2 font-mono">{euro(result.booster)}</strong></p>}
             <DemoFunds className="mx-auto inline-flex" />
           </div>
         ) : (

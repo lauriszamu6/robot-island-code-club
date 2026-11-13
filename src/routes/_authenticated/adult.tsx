@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import { Card, DemoFunds } from "@/components/AppShell";
@@ -9,7 +10,7 @@ import { TxnHistory } from "@/components/History";
 import { CharacterApiTest } from "@/components/CharacterApiTest";
 import { useDemo } from "@/lib/demo-store";
 import type { Difficulty } from "@/lib/game-data";
-import { earnedBy, earnedTotal, eur } from "@/lib/rewards";
+import { euro, summarize, walletQuery } from "@/lib/wallet-data";
 import { observations } from "@/lib/recommend";
 import { cn } from "@/lib/utils";
 
@@ -46,7 +47,9 @@ function AdultView({ a }: { a: Adventure }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["children"] }),
   });
   const { levels, games } = a.content;
-  const earned = earnedTotal(s);
+  const wq = useQuery(walletQuery(a.child.id));
+  const w = wq.data;
+  const sum = w ? summarize(w, games, levels, a.done) : null;
   const obs = observations(s);
   const hintsTotal = Object.values(s.hints).reduce((a, b) => a + b, 0);
   const replaysTotal = Object.values(s.replays).reduce((a, b) => a + b, 0);
@@ -60,18 +63,21 @@ function AdultView({ a }: { a: Adventure }) {
         <Link to="/redeem" className="rounded-xl border-2 border-navy bg-coral px-4 py-2 font-bold text-primary-foreground">Redemption</Link>
       </div>
 
-      {s.plan ? (
+      {wq.error ? (
+        <Card className="shadow-none"><p className="font-bold">Couldn't load the reward plan.</p><button className="text-sm font-bold text-teal underline" onClick={() => wq.refetch()}>Try again</button></Card>
+      ) : !w || !sum ? <Card className="shadow-none"><p className="text-sm">Loading rewards…</p></Card> : w.plan && w.goal ? (
       <section className="space-y-3">
         <h2 className="text-xl font-extrabold">Budget</h2>
         <DemoFunds />
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Stat label="Funded" value={eur(s.plan!.budget)} sub={`Max cost: 15 × ${eur(s.plan!.perGame)} + 5 × ${eur(s.plan!.booster)}`} />
-          <Stat label="Earned by child" value={eur(earned)} sub={`Games ${eur(earnedBy(s, "game"))} · Boosters ${eur(earnedBy(s, "booster"))}`} />
-          <Stat label="Remaining unearned" value={eur(s.plan!.budget - earned)} sub={`Goal: ${s.plan!.goalName} (${eur(s.plan!.goalTarget)}) · redeem from ${format(parseISO(s.plan!.redeemDate), "d MMM yyyy")}`} />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat label="Parent funds available" value={euro(sum.parentAvailable)} sub={`Funded ${euro(sum.funded)} · max cost ${games.length} × ${euro(w.plan.per_game_cents)} + ${levels.length} × ${euro(w.plan.booster_cents)}`} />
+          <Stat label="Child's earned balance" value={euro(sum.childBalance)} sub={`Games ${euro(sum.gameEarned)} · Boosters ${euro(sum.boosterEarned)}${sum.redeemed ? ` · redeemed ${euro(sum.redeemed)}` : ""}`} />
+          <Stat label="Potential future rewards" value={euro(sum.potential)} sub="If every remaining game and level is finished" />
+          <Stat label="Savings goal" value={euro(w.goal.target_cents)} sub={`${w.goal.name} · redeem from ${format(parseISO(w.goal.redeem_date), "d MMM yyyy")}`} />
         </div>
       </section>
       ) : (
-        <Card className="shadow-none"><h2 className="text-lg font-extrabold">Rewards not set up</h2><p className="text-sm text-muted-foreground">Create a demo reward plan for {a.child.nickname}.</p><Link to="/setup" className="mt-2 inline-block font-bold text-teal underline">Set up rewards</Link></Card>
+        <Card className="shadow-none"><h2 className="text-lg font-extrabold">Rewards not set up</h2><p className="text-sm text-muted-foreground">Create a simulated reward plan for {a.child.nickname}.</p><Link to="/setup" className="mt-2 inline-block font-bold text-teal underline">Set up rewards</Link></Card>
       )}
 
       <section className="grid gap-4 md:grid-cols-2">
@@ -101,7 +107,7 @@ function AdultView({ a }: { a: Adventure }) {
         </div>
       </Card>
 
-      <Card className="shadow-none"><h2 className="mb-2 text-lg font-extrabold">Transaction history</h2><TxnHistory s={s} /></Card>
+      <Card className="shadow-none"><h2 className="mb-2 text-lg font-extrabold">Transaction history</h2>{w ? <TxnHistory txns={w.txns} games={games} /> : <p className="text-sm">Loading…</p>}</Card>
       <Card className="shadow-none"><h2 className="text-lg font-extrabold">Optional: character API test</h2><CharacterApiTest /></Card>
     </div>
   );

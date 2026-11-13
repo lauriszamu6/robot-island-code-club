@@ -1,3 +1,5 @@
+import { useQuery as useWalletQ } from "@tanstack/react-query";
+import { euro, summarize, walletQuery } from "@/lib/wallet-data";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Lock, Play, Star, Flag } from "lucide-react";
 import { Card, DemoFunds } from "@/components/AppShell";
@@ -69,13 +71,7 @@ function MapView({ a }: { a: Adventure }) {
               <Link to="/play/$gameId" params={{ gameId: next.id }} search={{ mode: "normal" }} className="mt-3 inline-flex min-h-12 items-center gap-2 rounded-2xl chunky bg-coral px-5 font-extrabold text-primary-foreground"><Play className="size-5" /> Play</Link>
             </Card>
           )}
-          {s.plan && <Card>
-            <GoalMeter s={s} compact />
-            <p className="mt-3 text-sm"><strong>Next reward:</strong> {next ? `${eur(s.plan.perGame)} for finishing “${next.title}”` : "all earned!"}</p>
-            <p className="text-sm"><strong>Redeem from:</strong> {format(parseISO(s.plan.redeemDate), "d MMM yyyy")}{todayISO() >= s.plan.redeemDate && " (ready!)"}</p>
-            <Link to="/rewards" className="mt-3 inline-block text-sm font-extrabold text-teal underline underline-offset-4">See goal & history</Link>
-            <DemoFunds className="mt-3" />
-          </Card>}
+          <MapGoal a={a} next={next} />
         </aside>
       </div>
     </div>
@@ -117,4 +113,21 @@ function IslandCard({ level, status, isNext, games, done }: { level: Level; stat
     </div>
   );
   return status === "locked" ? <div aria-disabled title="Finish the previous island to unlock">{inner}</div> : <Link to="/level/$levelId" params={{ levelId: String(level.n) }} aria-label={`Level ${level.n}: ${level.concept}, ${badge.text}`}>{inner}</Link>;
+}
+
+function MapGoal({ a, next }: { a: Adventure; next: { title: string } | null | undefined }) {
+  const q = useWalletQ(walletQuery(a.child.id));
+  if (q.error) return <Card><p className="text-sm font-bold">Couldn't load the savings goal.</p><button className="text-sm font-bold text-teal underline" onClick={() => q.refetch()}>Try again</button></Card>;
+  const w = q.data;
+  if (!w?.plan || !w.goal) return null;
+  const sum = summarize(w, a.content.games, a.content.levels, a.done);
+  return (
+    <Card>
+      <GoalMeter w={w} sum={sum} compact />
+      <p className="mt-3 text-sm"><strong>Next reward:</strong> {next && !w.goal.redeemed_at ? `${euro(w.plan.per_game_cents)} for finishing “${next.title}”` : "all earned!"}</p>
+      <p className="text-sm"><strong>Redeem from:</strong> {format(parseISO(w.goal.redeem_date), "d MMM yyyy")}{todayISO() >= w.goal.redeem_date && " (ready!)"}</p>
+      <Link to="/rewards" className="mt-3 inline-block text-sm font-extrabold text-teal underline underline-offset-4">See goal & history</Link>
+      <DemoFunds className="mt-3" />
+    </Card>
+  );
 }

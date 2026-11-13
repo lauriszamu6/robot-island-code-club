@@ -166,13 +166,175 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_plans: {
+        Row: {
+          booster_cents: number
+          budget_cents: number
+          child_id: string
+          confirmed_at: string
+          id: string
+          per_game_cents: number
+          updated_at: string
+        }
+        Insert: {
+          booster_cents: number
+          budget_cents: number
+          child_id: string
+          confirmed_at?: string
+          id?: string
+          per_game_cents: number
+          updated_at?: string
+        }
+        Update: {
+          booster_cents?: number
+          budget_cents?: number
+          child_id?: string
+          confirmed_at?: string
+          id?: string
+          per_game_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_plans_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: true
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      savings_goals: {
+        Row: {
+          child_id: string
+          created_at: string
+          id: string
+          name: string
+          redeem_date: string
+          redeemed_at: string | null
+          target_cents: number
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          id?: string
+          name: string
+          redeem_date: string
+          redeemed_at?: string | null
+          target_cents: number
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          redeem_date?: string
+          redeemed_at?: string | null
+          target_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_goals_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: true
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallet_transactions: {
+        Row: {
+          amount_cents: number
+          child_id: string
+          created_at: string
+          game_id: string | null
+          goal_id: string | null
+          id: string
+          kind: string
+          level_position: number | null
+          plan_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          child_id: string
+          created_at?: string
+          game_id?: string | null
+          goal_id?: string | null
+          id?: string
+          kind: string
+          level_position?: number | null
+          plan_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          child_id?: string
+          created_at?: string
+          game_id?: string | null
+          goal_id?: string | null
+          id?: string
+          kind?: string
+          level_position?: number | null
+          plan_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "savings_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_level_position_fkey"
+            columns: ["level_position"]
+            isOneToOne: false
+            referencedRelation: "levels"
+            referencedColumns: ["position"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "reward_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      _assert_own_child: { Args: { _child_id: string }; Returns: undefined }
       record_game_attempt: {
         Args: { _child_id: string; _game_id: string; _success: boolean }
+        Returns: Json
+      }
+      redeem_goal: { Args: { _child_id: string }; Returns: Json }
+      save_reward_plan: {
+        Args: {
+          _booster_cents: number
+          _budget_cents: number
+          _child_id: string
+          _goal_name: string
+          _goal_target_cents: number
+          _per_game_cents: number
+          _redeem_date: string
+        }
         Returns: Json
       }
     }

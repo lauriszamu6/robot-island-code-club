@@ -1,17 +1,27 @@
 import { format, parseISO } from "date-fns";
-import { gameById } from "@/lib/game-data";
-import { eur, type DemoState } from "@/lib/rewards";
+import type { Game } from "@/lib/game-data";
+import { euro, type WalletTx } from "@/lib/wallet-data";
 
-export function TxnHistory({ s }: { s: DemoState }) {
-  if (s.transactions.length === 0) return <p className="text-sm text-muted-foreground">No rewards earned yet.</p>;
+const LABEL: Record<WalletTx["kind"], [string, string]> = {
+  funding: ["Parent funding", "bg-lavender-soft"],
+  game_reward: ["Game reward", "bg-teal-soft"],
+  level_booster: ["Level booster", "bg-sun"],
+  redemption: ["Redemption", "bg-mint"],
+};
+
+export function TxnHistory({ txns, games, showFunding = true }: { txns: WalletTx[]; games: Game[]; showFunding?: boolean }) {
+  const list = txns.filter((t) => showFunding || t.kind !== "funding");
+  if (list.length === 0) return <p className="text-sm text-muted-foreground">No transactions yet.</p>;
   return (
     <ul className="divide-y divide-navy/10">
-      {[...s.transactions].reverse().map((t) => (
+      {[...list].reverse().map((t) => (
         <li key={t.id} className="flex items-center gap-3 py-2 text-sm">
-          <span className={t.type === "game" ? "rounded-full border-2 border-navy bg-teal-soft px-2 py-0.5 text-xs font-extrabold" : "rounded-full border-2 border-navy bg-sun px-2 py-0.5 text-xs font-extrabold"}>{t.type === "game" ? "Game reward" : "Level booster"}</span>
-          <span className="flex-1 font-semibold">{t.type === "game" ? gameById(t.ref)?.title : `Level ${t.ref} complete`}</span>
-          <span className="hidden text-muted-foreground sm:inline">{format(parseISO(t.at), "d MMM, HH:mm")}</span>
-          <span className="font-mono font-extrabold">+{eur(t.amount)}</span>
+          <span className={`rounded-full border-2 border-navy px-2 py-0.5 text-xs font-extrabold ${LABEL[t.kind][1]}`}>{LABEL[t.kind][0]}</span>
+          <span className="flex-1 font-semibold">
+            {t.kind === "game_reward" ? games.find((g) => g.id === t.game_id)?.title : t.kind === "level_booster" ? `Level ${t.level_position} complete` : t.kind === "funding" ? "Added to the reward budget (simulated)" : "Handed over for the goal (simulated)"}
+          </span>
+          <span className="hidden text-muted-foreground sm:inline">{format(parseISO(t.created_at), "d MMM, HH:mm")}</span>
+          <span className="font-mono font-extrabold">{t.kind === "redemption" ? "−" : "+"}{euro(t.amount_cents)}</span>
         </li>
       ))}
     </ul>

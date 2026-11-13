@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { euro, walletQuery } from "@/lib/wallet-data";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, Lock, Play, RotateCcw, Rocket } from "lucide-react";
 import { Card, DemoFunds } from "@/components/AppShell";
@@ -36,7 +38,7 @@ function LevelView({ a, n }: { a: Adventure; n: number }) {
   if (!level) return <div className="mx-auto max-w-lg p-6"><Card className="text-center"><h1 className="text-2xl font-extrabold">Island not found</h1><Link to="/map" className="mt-3 inline-block font-extrabold text-teal underline">Back to the map</Link></Card></div>;
   const games = a.content.games.filter((g) => g.level === n);
   const status = levelState(a.content.games, a.done, n);
-  const plan = s.plan;
+  const plan = useQuery(walletQuery(a.child.id)).data?.plan;
   const progress = new Map(a.progress.map((p) => [p.game_id, p]));
 
   return (
@@ -60,7 +62,7 @@ function LevelView({ a, n }: { a: Adventure; n: number }) {
               <Rocket className="mt-1 size-6 shrink-0 text-coral" />
               <div>
                 <p className="font-extrabold">How rewards work on this island</p>
-                <p className="text-sm">Each game pays <strong>{eur(plan.perGame)}</strong> the first time you solve it. Finish all three to get a one-time <strong>{eur(plan.booster)} level booster</strong>. Replays are just for fun: no extra money. Your adult funds every reward.</p>
+                <p className="text-sm">Each game pays <strong>{euro(plan.per_game_cents)}</strong> the first time you solve it. Finish all three to get a one-time <strong>{euro(plan.booster_cents)} level booster</strong>. Replays are just for fun: no extra money. Your adult funds every reward.</p>
                 <DemoFunds className="mt-2 inline-flex" />
               </div>
             </div>

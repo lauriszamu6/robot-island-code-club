@@ -1,105 +1,132 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Card, DemoFunds, Loading } from "@/components/AppShell";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Card, DemoFunds } from "@/components/AppShell";
+import { WalletGate, type WithWallet } from "@/components/WalletGate";
 import { BigButton } from "@/components/game/Controls";
-import { setDemo, todayISO, useDemo, useIsClient } from "@/lib/demo-store";
-import { ageDefaultDifficulty, earnedTotal, eur, maxCost, validatePlan } from "@/lib/rewards";
-import type { AgeBand, Difficulty } from "@/lib/game-data";
+import { todayISO } from "@/lib/demo-store";
+import { euro, maxCostCents, saveRewardPlan, toCents } from "@/lib/wallet-data";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/setup")({
   head: () => ({
     meta: [
-      { title: "Adult setup — Astrobit" },
-      { name: "description", content: "Set the age band, parent-funded rewards, level boosters, budget and the child's goal." },
-      { property: "og:title", content: "Adult setup — Astrobit" },
-      { property: "og:description", content: "Plan parent-funded rewards and a savings goal (demo funds)." },
+      { title: "Reward plan — Astrobit" },
+      { name: "description", content: "Set parent-funded rewards, level boosters, budget and the child's savings goal (simulated money)." },
+      { property: "og:title", content: "Reward plan — Astrobit" },
+      { property: "og:description", content: "Plan parent-funded rewards and a savings goal (simulated money)." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Setup,
+  component: () => <WalletGate>{(x) => <Setup x={x} />}</WalletGate>,
 });
 
 const inDays = (d: number) => new Date(Date.now() + d * 864e5).toISOString().slice(0, 10);
 const field = "mt-1 w-full rounded-xl border-2 border-navy bg-card px-3 py-2.5 text-base font-semibold focus:outline-none focus:ring-4 focus:ring-teal/40";
 
-function Setup() {
-  const client = useIsClient();
-  const s = useDemo();
+function Setup({ x }: { x: WithWallet }) {
+  const { wallet: w, sum, child, content } = x;
   const nav = useNavigate();
-  const [f, setF] = useState({ childName: "", ageBand: null as AgeBand | null, difficulty: "gentle" as Difficulty, perGame: 2, booster: 5, budget: 55, goalName: "", goalTarget: 40, redeemDate: inDays(30) });
-  const [touchedBudget, setTouchedBudget] = useState(false);
-  const [errors, setErrors] = useState<string[]>([]);
-  useEffect(() => {
-    if (!client) return;
-    setF((x) => ({ ...x, childName: s.childName, ageBand: s.ageBand, difficulty: s.difficulty, ...(s.plan ? { perGame: s.plan.perGame, booster: s.plan.booster, budget: s.plan.budget, goalName: s.plan.goalName, goalTarget: s.plan.goalTarget, redeemDate: s.plan.redeemDate } : {}) }));
-    if (s.plan) setTouchedBudget(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client]);
-  if (!client) return <Loading />;
+  const qc = useQueryClient();
+  // Form works in euros; everything is stored in cents.
+  const [f, setF] = useState({
+    perGame: w.plan ? w.plan.per_game_cents / 100 : 2,
+    booster: w.plan ? w.plan.booster_cents / 100 : 5,
+    goalName: w.goal?.name ?? "",
+    goalTarget: w.goal ? w.goal.target_cents / 100 : 40,
+    redeemDate: w.goal && w.goal.redeem_date > todayISO() ? w.goal.redeem_date : inDays(30),
+  });
+  const [budgetEur, setBudgetEur] = useState<number | null>(w.plan ? w.plan.budget_cents / 100 : null);
+  const [confirming, setConfirming] = useState(false);
+  const pg = toCents(f.perGame), bo = toCents(f.booster);
+  const cost = maxCostCents(pg, bo, content.games.length, content.levels.length);
+  const budget = Math.max(budgetEur === null ? cost : toCents(budgetEur), 0);
+  const earnedLock = sum.earned > 0;
+  const redeemed = !!w.goal?.redeemed_at;
 
-  const cost = maxCost(f.perGame, f.booster);
-  const budget = touchedBudget ? f.budget : cost;
-  const locked = s.transactions.length > 0;
-  const save = () => {
-    const plan = { perGame: f.perGame, booster: f.booster, budget, goalName: f.goalName, goalTarget: f.goalTarget, redeemDate: f.redeemDate };
-    const errs = validatePlan(s, plan, todayISO());
-    setErrors(errs);
-    if (errs.length) return;
-    setDemo((x) => ({ ...x, plan: { ...plan, confirmedAt: new Date().toISOString() } }));
-    nav({ to: "/adult" });
-  };
+  const save = useMutation({
+    mutationFn: () => saveRewardPlan(child.id, { perGame: pg, booster: bo, budget, goalName: f.goalName, goalTarget: toCents(f.goalTarget), redeemDate: f.redeemDate }),
+    onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["wallet", child.id] }); nav({ to: "/adult" }); },
+  });
+  const localErrors = [
+    budget < cost && `Budget is ${euro(cost - budget)} short of the maximum cost.`,
+    w.plan && budget < w.plan.budget_cents && "The funded budget can't be reduced.",
+    earnedLock && w.plan && (pg < w.plan.per_game_cents || bo < w.plan.booster_cents) && "Rewards can't be lowered after money has been earned.",
+    !f.goalName.trim() && "Add the goal name.",
+    !(f.goalTarget > 0) && "Add a target amount.",
+    f.redeemDate <= todayISO() && "Pick a redemption date in the future.",
+  ].filter(Boolean) as string[];
+
+  if (redeemed) return <div className="mx-auto max-w-xl px-4 py-8"><Card><h1 className="text-2xl font-extrabold">This plan has been redeemed</h1><p className="mt-1 text-muted-foreground">{child.nickname}'s simulated rewards were handed over. A new plan for future content will come later.</p></Card></div>;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-3xl font-extrabold">Adult setup</h1>
-      <p className="mt-1 text-muted-foreground">A few choices, then the builder can start. You fund every reward; nobody else adds money.</p>
+      <h1 className="text-3xl font-extrabold">Reward plan for {child.nickname}</h1>
+      <p className="mt-1 text-muted-foreground">You fund every game reward and every level booster. Nobody else adds money.</p>
       <DemoFunds className="mt-4" />
-
-      <p className="mt-4 rounded-xl bg-lavender-soft p-3 text-sm font-bold">This reward plan applies to the child profile currently selected. Nickname, age range and difficulty are managed under Profiles.</p>
 
       <Card className="mt-6 space-y-5">
         <h2 className="text-xl font-extrabold">1. Rewards you fund</h2>
-        {locked && <p className="rounded-xl bg-mint px-3 py-2 text-sm font-bold">Rewards have already been earned ({eur(earnedTotal(s))}). You can raise amounts, but not lower them.</p>}
+        {earnedLock && <p className="rounded-xl bg-mint px-3 py-2 text-sm font-bold">{euro(sum.earned)} has already been earned. You can raise amounts, but not lower them.</p>}
         <div>
           <p className="font-bold">Reward per game (first completion only)</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {[1, 2, 5].map((v) => (
-              <button key={v} type="button" aria-pressed={f.perGame === v} disabled={locked && v < (s.plan?.perGame ?? 0)} onClick={() => setF({ ...f, perGame: v })} className={cn("min-w-16 rounded-2xl border-2 border-navy px-4 py-2.5 text-lg font-extrabold disabled:opacity-40", f.perGame === v ? "bg-sun" : "bg-card")}>{eur(v)}</button>
+              <button key={v} type="button" aria-pressed={f.perGame === v} disabled={earnedLock && toCents(v) < (w.plan?.per_game_cents ?? 0)} onClick={() => setF({ ...f, perGame: v })} className={cn("min-w-16 rounded-2xl border-2 border-navy px-4 py-2.5 text-lg font-extrabold disabled:opacity-40", f.perGame === v ? "bg-sun" : "bg-card")}>€{v}</button>
             ))}
             <label className="flex items-center gap-2 text-sm font-bold">Custom €<input type="number" min={0.5} step={0.5} className={cn(field, "mt-0 w-24")} value={f.perGame} onChange={(e) => setF({ ...f, perGame: Number(e.target.value) })} /></label>
           </div>
         </div>
-        <label className="block font-bold">Level booster (fixed €, once per completed level)
+        <label className="block font-bold">Level booster (fixed €, paid once per completed level)
           <input type="number" min={0} step={1} className={cn(field, "w-40")} value={f.booster} onChange={(e) => setF({ ...f, booster: Number(e.target.value) })} />
         </label>
         <div className="rounded-2xl bg-sun-soft p-4">
-          <p className="text-sm font-bold uppercase tracking-wide">Maximum cost</p>
-          <p className="mt-1 font-mono text-lg">15 × {eur(f.perGame)} + 5 × {eur(f.booster)} = <strong className="text-2xl">{eur(cost)}</strong></p>
-          <label className="mt-3 block font-bold">Total funded budget (must cover the maximum)
-            <input type="number" min={cost} className={cn(field, "w-40")} value={budget} onChange={(e) => { setTouchedBudget(true); setF({ ...f, budget: Number(e.target.value) }); }} />
+          <p className="text-sm font-bold uppercase tracking-wide">Maximum commitment</p>
+          <p className="mt-1 font-mono text-lg">{content.games.length} × {euro(pg)} + {content.levels.length} × {euro(bo)} = <strong className="text-2xl">{euro(cost)}</strong></p>
+          <label className="mt-3 block font-bold">Total funded budget (€, must cover the maximum)
+            <input type="number" min={cost / 100} className={cn(field, "w-40")} value={budget / 100} onChange={(e) => setBudgetEur(Number(e.target.value))} />
           </label>
-          {budget < cost && <p className="mt-2 text-sm font-bold text-destructive">Budget is {eur(cost - budget)} short of the maximum cost.</p>}
         </div>
       </Card>
 
       <Card className="mt-6 space-y-5">
-        <h2 className="text-xl font-extrabold">2. The builder's goal</h2>
-        <label className="block font-bold">What are they saving for? (let the child choose)<input className={field} value={f.goalName} onChange={(e) => setF({ ...f, goalName: e.target.value })} placeholder="e.g. Skateboard, or 'savings'" maxLength={40} /></label>
+        <h2 className="text-xl font-extrabold">2. {child.nickname}'s savings goal</h2>
+        <label className="block font-bold">What are they saving for? (let the child choose)<input className={field} value={f.goalName} onChange={(e) => setF({ ...f, goalName: e.target.value })} placeholder="e.g. Skateboard" maxLength={40} /></label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block font-bold">Target amount (€)<input type="number" min={1} className={field} value={f.goalTarget} onChange={(e) => setF({ ...f, goalTarget: Number(e.target.value) })} /></label>
           <label className="block font-bold">Redemption date<input type="date" min={inDays(1)} className={field} value={f.redeemDate} onChange={(e) => setF({ ...f, redeemDate: e.target.value })} /></label>
         </div>
       </Card>
 
-      {errors.length > 0 && (
-        <ul role="alert" className="mt-6 space-y-1 rounded-2xl border-2 border-destructive bg-card p-4 text-sm font-bold text-destructive">{errors.map((e) => <li key={e}>• {e}</li>)}</ul>
+      {(localErrors.length > 0 || save.error) && (
+        <ul role="alert" className="mt-6 space-y-1 rounded-2xl border-2 border-destructive bg-card p-4 text-sm font-bold text-destructive">
+          {localErrors.map((e) => <li key={e}>• {e}</li>)}
+          {save.error && <li>• {save.error.message}</li>}
+        </ul>
       )}
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <BigButton onClick={save} className="min-h-14 text-lg">Confirm plan · {eur(budget)} demo budget</BigButton>
-        <span className="text-sm text-muted-foreground">No card or bank details are collected. Nothing is charged.</span>
-      </div>
+
+      {!confirming ? (
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <BigButton onClick={() => setConfirming(true)} disabled={localErrors.length > 0} className="min-h-14 text-lg">Review plan</BigButton>
+          <span className="text-sm text-muted-foreground">No card or bank details are collected. Nothing is charged.</span>
+        </div>
+      ) : (
+        <Card className="mt-6 bg-sun-soft">
+          <h2 className="text-xl font-extrabold">Confirm the simulated plan</h2>
+          <ul className="mt-2 space-y-1 text-sm">
+            <li>Game reward: <strong>{euro(pg)}</strong> × {content.games.length} games</li>
+            <li>Level booster: <strong>{euro(bo)}</strong> × {content.levels.length} levels</li>
+            <li>Maximum commitment: <strong>{euro(cost)}</strong></li>
+            <li>Budget you're funding: <strong>{euro(budget)}</strong>{w.plan && budget > sum.funded && <> (adds {euro(budget - sum.funded)})</>}</li>
+          </ul>
+          <DemoFunds className="mt-3" />
+          <div className="mt-4 flex gap-2">
+            <BigButton onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Saving…" : "Confirm (demo)"}</BigButton>
+            <BigButton variant="plain" onClick={() => setConfirming(false)}>Back</BigButton>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
