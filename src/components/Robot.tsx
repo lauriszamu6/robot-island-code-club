@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { companionUrl, parseCompanion } from "@/lib/companion";
 import { cn } from "@/lib/utils";
 
 export type Mood = "welcome" | "thinking" | "encourage" | "celebrate";
@@ -53,11 +55,21 @@ export function Robot({ mood = "welcome", className, title = "Bolt the robot" }:
   );
 }
 
-export function RobotSays({ mood, children, className }: { mood?: Mood | undefined; children: React.ReactNode; className?: string }) {
+export function RobotSays({ mood, children, className, companion }: { mood?: Mood | undefined; children: React.ReactNode; className?: string; companion?: unknown }) {
   return (
     <div className={cn("flex items-end gap-3", className)}>
-      <Robot mood={mood} className="h-20 w-16 shrink-0 anim-bob" />
+      {companion ? <CompanionAvatar value={companion} mood={mood} className="size-20 shrink-0 anim-bob" /> : <Robot mood={mood} className="h-20 w-16 shrink-0 anim-bob" />}
       <div className="relative rounded-2xl rounded-bl-sm chunky bg-card px-4 py-3 text-base font-semibold">{children}</div>
     </div>
   );
+}
+
+/** The child's chosen DiceBear Bottts companion, with the built-in robot as fallback if missing or the image fails. */
+export function CompanionAvatar({ value, mood, className }: { value: unknown; mood?: Mood | undefined; className?: string }) {
+  const c = parseCompanion(value);
+  const url = c ? companionUrl(c) : null;
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [url]);
+  if (!url || failed) return <Robot mood={mood} className={className} />;
+  return <img src={url} alt="Your robot companion" width={160} height={160} loading="lazy" className={cn("rounded-2xl", className)} onError={() => setFailed(true)} />;
 }

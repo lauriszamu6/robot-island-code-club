@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           adult_id: string
           age_range: string
+          avatar: Json | null
           created_at: string
           difficulty: string
           id: string
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           adult_id?: string
           age_range: string
+          avatar?: Json | null
           created_at?: string
           difficulty: string
           id?: string
@@ -34,6 +36,7 @@ export type Database = {
         Update: {
           adult_id?: string
           age_range?: string
+          avatar?: Json | null
           created_at?: string
           difficulty?: string
           id?: string

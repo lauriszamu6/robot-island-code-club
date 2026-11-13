@@ -62,9 +62,10 @@ function MapView({ a }: { a: Adventure }) {
           </ol>
         </div>
         <aside className="order-1 flex flex-col gap-4 lg:order-2 lg:sticky lg:top-20 lg:self-start">
-          <RobotSays mood={done === games.length ? "celebrate" : "welcome"}>
+          <RobotSays companion={a.child.avatar} mood={done === games.length ? "celebrate" : "welcome"}>
             {done === games.length ? "Every island is fixed! Amazing building." : `Hi ${a.child.nickname}! ${done} of ${games.length} games done.`}
           </RobotSays>
+          <Link to="/companion" className="self-start text-sm font-extrabold text-teal underline underline-offset-4">{a.child.avatar ? "Change my robot" : "Build my robot companion"}</Link>
           <NextChallenge a={a} />
           <MapGoal a={a} next={next} />
         </aside>

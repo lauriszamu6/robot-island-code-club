@@ -6,7 +6,7 @@ import { levelState, recordAttempt } from "@/lib/adventure-data";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Lightbulb, PartyPopper, Star, Info } from "lucide-react";
 import { Card, DemoFunds } from "@/components/AppShell";
-import { Robot, RobotSays, type Mood } from "@/components/Robot";
+import { CompanionAvatar, Robot, RobotSays, type Mood } from "@/components/Robot";
 import { WorkshopScene } from "@/components/scenery/Workshop";
 import { BigButton } from "@/components/game/Controls";
 import { OrderEngine } from "@/components/game/OrderEngine";
@@ -135,11 +135,11 @@ function PlayView({ a, game }: { a: Adventure; game: Game }) {
               {saveError && <p role="alert" className="mb-3 rounded-xl border-2 border-destructive bg-card p-3 text-sm font-bold text-destructive">{saveError}</p>}
               {feedback ? (
                 <div className={cn("flex items-start gap-3 rounded-2xl border-2 border-navy p-3", feedback.ok ? "bg-mint" : "bg-sun-soft")}>
-                  <Robot mood={mood} className="h-16 w-12 shrink-0" />
+                  <CompanionAvatar value={a.child.avatar} mood={mood} className="size-16 shrink-0" />
                   <div><p className="font-extrabold">{feedback.ok ? "✓ It works!" : "Not yet. Let's investigate"}</p><p>{feedback.msg}</p></div>
                 </div>
               ) : (
-                <RobotSays mood={mood}>Build your program, then press Run to test it.</RobotSays>
+                <RobotSays companion={a.child.avatar} mood={mood}>Build your program, then press Run to test it.</RobotSays>
               )}
               {hintsShown > 0 && (
                 <ul className="mt-3 space-y-2">{game.hints.slice(0, hintsShown).map((h, i) => <li key={i} className="flex gap-2 rounded-xl bg-sun-soft px-3 py-2 text-sm font-semibold"><Lightbulb className="size-4 shrink-0 text-coral" /> Hint {i + 1}: {h}</li>)}</ul>
@@ -188,7 +188,7 @@ function Celebrate({ a, game, levels, result, hints }: { a: Adventure; game: Gam
   return (
     <div className="mx-auto max-w-2xl space-y-4 anim-enter">
       <Card className="text-center">
-        <Robot mood="celebrate" className="anim-pop mx-auto h-32 w-28" />
+        <CompanionAvatar value={a.child.avatar} mood="celebrate" className="anim-pop mx-auto size-32" />
         <h1 className="mt-2 flex items-center justify-center gap-2 text-3xl font-extrabold"><PartyPopper className="size-7 text-coral" /> {game.title} solved!</h1>
         {result.firstTime ? (
           <div className="mt-4 space-y-2">
@@ -218,7 +218,7 @@ function Celebrate({ a, game, levels, result, hints }: { a: Adventure; game: Gam
         ) : (
           <div className="space-y-3">
             <p className="text-xs font-extrabold uppercase tracking-wide text-muted-foreground">Suggestion rule: {rec.rule}</p>
-            <RobotSays mood="encourage">{rec.message}</RobotSays>
+            <RobotSays companion={a.child.avatar} mood="encourage">{rec.message}</RobotSays>
             {rec.adultTip && <p className="rounded-xl bg-lavender-soft px-3 py-2 text-sm"><strong>For the adult:</strong> {rec.adultTip}</p>}
             {rec.mode !== "normal" && <p className="text-sm font-bold">Practice and harder rounds are optional and carry no extra cash reward.</p>}
             <div className="flex flex-wrap gap-3">

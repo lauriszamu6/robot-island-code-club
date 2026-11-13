@@ -3,7 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Game, Level, Guide, AgeBand, Difficulty } from "./game-data";
 
-export type ChildProfile = { id: string; nickname: string; age_range: AgeBand; difficulty: Difficulty; created_at: string };
+export type ChildProfile = { id: string; nickname: string; age_range: AgeBand; difficulty: Difficulty; created_at: string; avatar: unknown };
 export type Progress = { game_id: string; status: "in_progress" | "completed"; attempts: number; replays: number; completed_at: string | null };
 export type Content = { levels: Level[]; games: Game[] };
 
@@ -30,7 +30,7 @@ export const contentQuery = queryOptions({
 export const childrenQuery = queryOptions({
   queryKey: ["children"],
   queryFn: async (): Promise<ChildProfile[]> => {
-    const { data, error } = await supabase.from("child_profiles").select("id,nickname,age_range,difficulty,created_at").order("created_at");
+    const { data, error } = await supabase.from("child_profiles").select("id,nickname,age_range,difficulty,created_at,avatar").order("created_at");
     if (error) throw error;
     return data as ChildProfile[];
   },

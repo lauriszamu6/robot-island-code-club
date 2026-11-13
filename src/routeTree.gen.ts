@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdultRouteImport } from './routes/_authenticated/adult'
 import { Route as AuthenticatedChildrenRouteImport } from './routes/_authenticated/children'
+import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
 import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
 import { Route as AuthenticatedRedeemRouteImport } from './routes/_authenticated/redeem'
 import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
@@ -49,6 +50,11 @@ const AuthenticatedAdultRoute = AuthenticatedAdultRouteImport.update({
 const AuthenticatedChildrenRoute = AuthenticatedChildrenRouteImport.update({
   id: '/children',
   path: '/children',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCompanionRoute = AuthenticatedCompanionRouteImport.update({
+  id: '/companion',
+  path: '/companion',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMapRoute = AuthenticatedMapRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/adult': typeof AuthenticatedAdultRoute
   '/children': typeof AuthenticatedChildrenRoute
+  '/companion': typeof AuthenticatedCompanionRoute
   '/map': typeof AuthenticatedMapRoute
   '/redeem': typeof AuthenticatedRedeemRoute
   '/rewards': typeof AuthenticatedRewardsRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/adult': typeof AuthenticatedAdultRoute
   '/children': typeof AuthenticatedChildrenRoute
+  '/companion': typeof AuthenticatedCompanionRoute
   '/map': typeof AuthenticatedMapRoute
   '/redeem': typeof AuthenticatedRedeemRoute
   '/rewards': typeof AuthenticatedRewardsRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/adult': typeof AuthenticatedAdultRoute
   '/_authenticated/children': typeof AuthenticatedChildrenRoute
+  '/_authenticated/companion': typeof AuthenticatedCompanionRoute
   '/_authenticated/map': typeof AuthenticatedMapRoute
   '/_authenticated/redeem': typeof AuthenticatedRedeemRoute
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/adult'
     | '/children'
+    | '/companion'
     | '/map'
     | '/redeem'
     | '/rewards'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/adult'
     | '/children'
+    | '/companion'
     | '/map'
     | '/redeem'
     | '/rewards'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/adult'
     | '/_authenticated/children'
+    | '/_authenticated/companion'
     | '/_authenticated/map'
     | '/_authenticated/redeem'
     | '/_authenticated/rewards'
@@ -218,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChildrenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/companion': {
+      id: '/_authenticated/companion'
+      path: '/companion'
+      fullPath: '/companion'
+      preLoaderRoute: typeof AuthenticatedCompanionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/map': {
       id: '/_authenticated/map'
       path: '/map'
@@ -266,6 +285,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdultRoute: typeof AuthenticatedAdultRoute
   AuthenticatedChildrenRoute: typeof AuthenticatedChildrenRoute
+  AuthenticatedCompanionRoute: typeof AuthenticatedCompanionRoute
   AuthenticatedMapRoute: typeof AuthenticatedMapRoute
   AuthenticatedRedeemRoute: typeof AuthenticatedRedeemRoute
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
@@ -277,6 +297,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdultRoute: AuthenticatedAdultRoute,
   AuthenticatedChildrenRoute: AuthenticatedChildrenRoute,
+  AuthenticatedCompanionRoute: AuthenticatedCompanionRoute,
   AuthenticatedMapRoute: AuthenticatedMapRoute,
   AuthenticatedRedeemRoute: AuthenticatedRedeemRoute,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,

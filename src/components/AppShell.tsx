@@ -33,6 +33,7 @@ export function AppHeader() {
   const links = child ? <>
     <Link to="/map" className={link} activeProps={active}>Island map</Link>
     <Link to="/rewards" className={link} activeProps={active}>My goal</Link>
+    <Link to="/companion" className={link} activeProps={active}>My robot</Link>
   </> : adult ? <>
     <Link to="/adult" className={link} activeProps={active}>Dashboard</Link>
     <Link to="/map" className={link} activeProps={active}>Map</Link>
