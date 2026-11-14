@@ -2,3 +2,4 @@
 - [x] Core 1: guided coding adventures in the database (levels, games, child profiles, progress)
 - [x] Core 2: parent-funded goals & rewards in the database (reward plans, savings goals, wallet transactions in cents).
 - [x] Core 3: feedback records, game objective tags, stored-data recommendations & adult summary.
+- [x] Add DiceBear constellations and Warm System planets across app backgrounds; verify readability and image fallback.

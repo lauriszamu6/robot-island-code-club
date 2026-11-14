@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { AppHeader } from "@/components/AppShell";
+import { SpaceBackdrop } from "@/components/scenery/Space";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -127,7 +128,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AppHeader />
-      <Outlet />
+      <div className="relative isolate min-h-[calc(100dvh-4rem)]">
+        <SpaceBackdrop className="-z-10" />
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 }

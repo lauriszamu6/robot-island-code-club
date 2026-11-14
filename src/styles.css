@@ -86,7 +86,10 @@
   --ring: var(--teal);
   --shadow-chunky: 0 4px 0 0 var(--navy);
   --shadow-soft: 0 10px 30px -12px oklch(0.29 0.045 255 / 0.35);
+  --space-surface: var(--cream);
 }
+
+.space-backdrop { background-color: var(--space-surface); }
 
 @layer base {
   * { border-color: var(--color-border); }

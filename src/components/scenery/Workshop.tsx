@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Gear, Cloud } from "./Sky";
 import { IslandArt } from "./Island";
 import type { Level } from "@/lib/game-data";
+import { SpaceBackdrop } from "./Space";
 
 /**
  * Workshop scene. Decorations live in their own side columns and a bottom bench strip,
@@ -9,7 +10,8 @@ import type { Level } from "@/lib/game-data";
  */
 export function WorkshopScene({ level, upgrades, children }: { level: Level; upgrades: number[]; children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] flex-col bg-cream-deep anim-enter">
+    <div className="relative isolate flex min-h-[calc(100vh-4rem)] flex-col anim-enter">
+      <SpaceBackdrop className="-z-10" />
       <div className="mx-auto grid w-full max-w-[1400px] flex-1 grid-cols-1 gap-4 px-3 pb-0 pt-4 lg:grid-cols-[150px_minmax(0,1fr)_150px] xl:grid-cols-[190px_minmax(0,1fr)_190px]">
         <aside aria-hidden className="hidden flex-col items-center gap-6 pt-6 lg:flex">
           <Shelf />
