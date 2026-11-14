@@ -372,7 +372,9 @@ export type Database = {
           id: string
           kind: string
           level_position: number | null
+          payment_env: string | null
           plan_id: string | null
+          stripe_session_id: string | null
         }
         Insert: {
           amount_cents: number
@@ -383,7 +385,9 @@ export type Database = {
           id?: string
           kind: string
           level_position?: number | null
+          payment_env?: string | null
           plan_id?: string | null
+          stripe_session_id?: string | null
         }
         Update: {
           amount_cents?: number
@@ -394,7 +398,9 @@ export type Database = {
           id?: string
           kind?: string
           level_position?: number | null
+          payment_env?: string | null
           plan_id?: string | null
+          stripe_session_id?: string | null
         }
         Relationships: [
           {

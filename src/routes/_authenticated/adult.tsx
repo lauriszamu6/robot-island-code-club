@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { levelState } from "@/lib/adventure-data";
 import { TxnHistory } from "@/components/History";
+import { TopUpCard } from "@/components/TopUpCard";
 import { CharacterApiTest } from "@/components/CharacterApiTest";
 import { useDemo } from "@/lib/demo-store";
 import type { Difficulty } from "@/lib/game-data";
@@ -68,6 +69,8 @@ function AdultView({ a }: { a: Adventure }) {
         <Link to="/setup" className="ml-auto rounded-xl border-2 border-navy bg-card px-4 py-2 font-bold">Edit plan</Link>
         <Link to="/redeem" className="rounded-xl border-2 border-navy bg-coral px-4 py-2 font-bold text-primary-foreground">Redemption</Link>
       </div>
+
+      <TopUpCard childId={a.child.id} nickname={a.child.nickname} />
 
       {wq.error ? (
         <Card className="shadow-none"><p className="font-bold">Couldn't load the reward plan.</p><button className="text-sm font-bold text-teal underline" onClick={() => wq.refetch()}>Try again</button></Card>
