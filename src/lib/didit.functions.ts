@@ -65,3 +65,37 @@ export const refreshAdultVerification = createServerFn({ method: "POST" })
     await save(context.userId, data.session_id, status);
     return { status };
   });
+
+const SID = /^[0-9a-f-]{36}$/i;
+
+/** Public: starts an identity check before an account exists (the "I'm the adult" first step). */
+export const startGuestVerification = createServerFn({ method: "POST" }).handler(async () => {
+  const s = (await didit("/v3/session/", {
+    method: "POST",
+    body: JSON.stringify({ workflow_id: await workflowId(), vendor_data: "astrobit-guest" }),
+  })) as { session_id: string; url: string };
+  return { url: s.url, sessionId: s.session_id };
+});
+
+/** Public: reads only the status of a guest session (no personal data returned). */
+export const checkGuestVerification = createServerFn({ method: "POST" })
+  .inputValidator((d: { sessionId: string }) => { if (!SID.test(d.sessionId)) throw new Error("Invalid session."); return d; })
+  .handler(async ({ data }) => {
+    const d = (await didit(`/v3/session/${data.sessionId}/decision/`)) as { status?: string };
+    return { status: d.status ?? "Not Started" };
+  });
+
+/** Links an approved guest session to the newly signed-in adult; a session can only be claimed once. */
+export const claimGuestVerification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { sessionId: string }) => { if (!SID.test(d.sessionId)) throw new Error("Invalid session."); return d; })
+  .handler(async ({ data, context }) => {
+    const d = (await didit(`/v3/session/${data.sessionId}/decision/`)) as { status?: string; vendor_data?: string };
+    if (d.vendor_data !== "astrobit-guest") return { status: "Not Started" };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: taken } = await supabaseAdmin.from("adult_verifications").select("adult_id").eq("session_id", data.sessionId).maybeSingle();
+    if (taken && taken.adult_id !== context.userId) return { status: "Not Started" };
+    const status = d.status ?? "Not Started";
+    await save(context.userId, data.sessionId, status);
+    return { status };
+  });

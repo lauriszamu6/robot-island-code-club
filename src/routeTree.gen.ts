@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as VerifyAdultRouteImport } from './routes/verify-adult'
 import { Route as AuthenticatedAdultRouteImport } from './routes/_authenticated/adult'
 import { Route as AuthenticatedChildrenRouteImport } from './routes/_authenticated/children'
 import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
@@ -40,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyAdultRoute = VerifyAdultRouteImport.update({
+  id: '/verify-adult',
+  path: '/verify-adult',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdultRoute = AuthenticatedAdultRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/verify-adult': typeof VerifyAdultRoute
   '/adult': typeof AuthenticatedAdultRoute
   '/children': typeof AuthenticatedChildrenRoute
   '/companion': typeof AuthenticatedCompanionRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/verify-adult': typeof VerifyAdultRoute
   '/adult': typeof AuthenticatedAdultRoute
   '/children': typeof AuthenticatedChildrenRoute
   '/companion': typeof AuthenticatedCompanionRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/verify-adult': typeof VerifyAdultRoute
   '/_authenticated/adult': typeof AuthenticatedAdultRoute
   '/_authenticated/children': typeof AuthenticatedChildrenRoute
   '/_authenticated/companion': typeof AuthenticatedCompanionRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/verify-adult'
     | '/adult'
     | '/children'
     | '/companion'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/verify-adult'
     | '/adult'
     | '/children'
     | '/companion'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/verify-adult'
     | '/_authenticated/adult'
     | '/_authenticated/children'
     | '/_authenticated/companion'
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  VerifyAdultRoute: typeof VerifyAdultRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-adult': {
+      id: '/verify-adult'
+      path: '/verify-adult'
+      fullPath: '/verify-adult'
+      preLoaderRoute: typeof VerifyAdultRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/adult': {
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  VerifyAdultRoute: VerifyAdultRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

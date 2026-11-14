@@ -22,7 +22,7 @@ export const Route = createFileRoute("/")({
 
 function Welcome() {
   const nav = useNavigate();
-  const go = (_who: "child" | "adult") => nav({ to: "/children" });
+  const go = (who: "child" | "adult") => nav({ to: who === "adult" ? "/verify-adult" : "/children" });
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
       <SkyBackdrop />

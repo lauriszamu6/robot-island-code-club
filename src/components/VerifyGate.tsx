@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck } from "lucide-react";
-import { refreshAdultVerification, startAdultVerification } from "@/lib/didit.functions";
+import { claimGuestVerification, refreshAdultVerification, startAdultVerification } from "@/lib/didit.functions";
+import { getGuestSession, setGuestSession } from "@/lib/guest-verification";
 import { Card } from "./AppShell";
 import { BigButton } from "./game/Controls";
 
@@ -13,7 +14,14 @@ export function VerifyGate({ children }: { children: ReactNode }) {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const check = () => refresh().then((r) => setStatus(r.status)).catch((e: Error) => { setErr(e.message); setStatus("Not Started"); });
+  const claim = useServerFn(claimGuestVerification);
+  const check = async () => {
+    const guest = getGuestSession();
+    if (guest) {
+      try { const r = await claim({ data: { sessionId: guest } }); setGuestSession(null); if (r.status === "Approved") return setStatus("Approved"); } catch { /* fall through */ }
+    }
+    return refresh().then((r) => setStatus(r.status)).catch((e: Error) => { setErr(e.message); setStatus("Not Started"); });
+  };
   useEffect(() => { void check(); }, []);
 
   const begin = async () => {
