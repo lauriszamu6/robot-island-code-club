@@ -41,7 +41,7 @@ export function AppHeader() {
     <Link to="/redeem" className={link} activeProps={active}>Redeem</Link>
   </> : null;
   return (
-    <header className="sticky top-0 z-30 border-b-2 border-navy bg-cream/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b-2 border-teal/40 bg-navy/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-2 px-3">
         <Link to="/" className="flex items-center gap-2">
           <Robot className="h-10 w-9" />

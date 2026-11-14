@@ -8,49 +8,51 @@ export const ACCENT_BG: Record<Level["accent"], string> = {
   teal: "bg-teal", coral: "bg-coral", sun: "bg-sun", lavender: "bg-lavender", mint: "bg-mint",
 };
 
-/** Floating island with a small robot workshop. */
+/** Orbital space dock with a docked rocketship. */
 export function IslandArt({ accent, status, className }: { accent: Level["accent"]; status: "locked" | "available" | "completed"; className?: string }) {
   const locked = status === "locked";
   const done = status === "completed";
   return (
     <svg viewBox="0 0 220 170" className={cn(className, locked && "opacity-70 saturate-50")} aria-hidden>
+      {/* soft glow halo */}
+      <ellipse cx="110" cy="128" rx="100" ry="26" className={cn(ACCENT_FILL[accent], "anim-glow")} opacity=".25" />
       <g className="stroke-navy" strokeWidth="3" strokeLinejoin="round">
-        {/* rock underside */}
-        <path d="M20 100 Q110 100 200 100 L170 130 Q150 160 112 166 Q80 160 60 135Z" className="fill-wood" />
-        <path d="M70 120 L90 150 M140 118 L125 152" strokeWidth="2" opacity=".4" />
-        {/* propeller / mechanical detail */}
-        <line x1="196" y1="104" x2="210" y2="120" strokeWidth="2.5" />
-        <ellipse cx="212" cy="124" rx="8" ry="3" className="fill-lavender" />
-        {/* grass top */}
-        <path d="M12 100 Q20 84 50 86 Q110 78 170 86 Q205 86 208 100 Z" className="fill-mint" />
-        {/* workshop */}
-        <rect x="70" y="50" width="76" height="44" rx="6" className="fill-cream" />
-        <path d="M62 54 L108 22 L154 54 Z" className={ACCENT_FILL[accent]} />
-        <circle cx="108" cy="40" r="7" className="fill-cream" />
-        <path d="M108 35 v10 M103 40 h10" strokeWidth="2" />
-        <rect x="96" y="66" width="24" height="28" rx="4" className="fill-teal" />
-        <rect x="78" y="62" width="12" height="12" rx="2" className={done ? "fill-sun" : "fill-sky"} />
-        <rect x="126" y="62" width="12" height="12" rx="2" className={done ? "fill-sun" : "fill-sky"} />
-        {/* chimney gear */}
-        <rect x="132" y="22" width="10" height="20" className="fill-lavender" />
-        {/* little tree */}
-        <circle cx="38" cy="78" r="12" className="fill-teal" />
-        <line x1="38" y1="88" x2="38" y2="96" />
+        {/* solar arrays */}
+        <rect x="4" y="112" width="34" height="16" rx="2" className="fill-teal" />
+        <path d="M15 112 v16 M27 112 v16" strokeWidth="1.5" />
+        <rect x="182" y="112" width="34" height="16" rx="2" className="fill-teal" />
+        <path d="M193 112 v16 M205 112 v16" strokeWidth="1.5" />
+        <path d="M38 120 h14 M168 120 h14" />
+        {/* dock platform ring */}
+        <ellipse cx="110" cy="128" rx="60" ry="16" className="fill-lavender" />
+        <ellipse cx="110" cy="124" rx="44" ry="10" className="fill-navy" />
+        {[60, 85, 135, 160].map((x) => <circle key={x} cx={x} cy={134} r="3" className={done ? "fill-sun" : "fill-teal"} strokeWidth="1.5" />)}
+        {/* docking clamps */}
+        <path d="M78 122 L86 96 M142 122 L134 96" strokeWidth="4" />
+        {/* thruster flame */}
+        {!locked && <path d="M100 120 Q110 150 120 120 Z" className={cn(done ? "fill-sun" : "fill-coral", "anim-glow")} strokeWidth="2" />}
+        {/* rocket fins */}
+        <path d="M92 92 L74 118 L94 112 Z" className={ACCENT_FILL[accent]} />
+        <path d="M128 92 L146 118 L126 112 Z" className={ACCENT_FILL[accent]} />
+        {/* rocket body */}
+        <path d="M110 10 Q134 40 130 112 H90 Q86 40 110 10 Z" className="fill-cream" />
+        <path d="M110 10 Q124 26 127 40 H93 Q96 26 110 10 Z" className="fill-coral" />
+        <rect x="98" y="104" width="24" height="10" rx="2" className="fill-navy" />
+        {/* porthole */}
+        <circle cx="110" cy="62" r="11" className={done ? "fill-sun" : "fill-sky"} />
+        <circle cx="106" cy="58" r="3" className="fill-cream" stroke="none" />
+        <circle cx="110" cy="88" r="5" className={done ? "fill-sun" : "fill-teal"} strokeWidth="2" />
         {done && (
           <>
-            <circle cx="84" cy="68" r="12" className="fill-sun anim-glow" stroke="none" opacity=".45" />
-            <circle cx="132" cy="68" r="12" className="fill-sun anim-glow" stroke="none" opacity=".45" />
-            <line x1="180" y1="92" x2="180" y2="52" />
-            <path d="M180 52 L204 60 L180 68 Z" className="fill-coral" />
-            {/* string lights */}
-            <path d="M62 54 Q85 64 108 56 Q130 64 154 54" fill="none" strokeWidth="1.5" />
-            {[74, 92, 124, 142].map((x) => <circle key={x} cx={x} cy={59} r="3" className="fill-sun" strokeWidth="1.5" />)}
+            <circle cx="110" cy="62" r="18" className="fill-sun anim-glow" stroke="none" opacity=".35" />
+            <path d="M170 40 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 l10 -4z" className="fill-sun" strokeWidth="1.5" />
+            <path d="M44 60 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3z" className="fill-mint" strokeWidth="1.5" />
           </>
         )}
         {locked && (
           <g>
-            <rect x="94" y="74" width="28" height="22" rx="4" className="fill-navy" />
-            <path d="M100 74 v-6 a8 8 0 0 1 16 0 v6" fill="none" strokeWidth="4" />
+            <rect x="96" y="70" width="28" height="22" rx="4" className="fill-navy" />
+            <path d="M102 70 v-6 a8 8 0 0 1 16 0 v6" fill="none" strokeWidth="4" />
           </g>
         )}
       </g>

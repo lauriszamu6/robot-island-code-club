@@ -66,7 +66,7 @@
   --on-dark: oklch(0.99 0.005 80);
 
   --background: var(--cream);
-  --foreground: var(--navy);
+  --foreground: var(--on-dark);
   --card: oklch(1 0 0);
   --card-foreground: var(--navy);
   --popover: oklch(1 0 0);
@@ -76,7 +76,7 @@
   --secondary: var(--teal);
   --secondary-foreground: oklch(1 0 0);
   --muted: var(--cream-deep);
-  --muted-foreground: oklch(0.42 0.04 255);
+  --muted-foreground: oklch(0.85 0.04 280);
   --accent: var(--sun-soft);
   --accent-foreground: var(--navy);
   --destructive: oklch(0.5 0.18 28);
@@ -86,10 +86,26 @@
   --ring: var(--teal);
   --shadow-chunky: 0 4px 0 0 var(--navy);
   --shadow-soft: 0 10px 30px -12px oklch(0.29 0.045 255 / 0.35);
-  --space-surface: var(--cream);
+  --space-surface: oklch(0.24 0.06 270);
 }
 
-.space-backdrop { background-color: var(--space-surface); }
+.bg-card, .bg-popover, .bg-background, .bg-cream, .bg-cream-deep, .bg-sun, .bg-sun-soft, .bg-mint,
+.bg-sky, .bg-lavender, .bg-lavender-soft, .bg-teal-soft, .bg-accent, .bg-muted, .bg-white, input, textarea, select {
+  --foreground: var(--navy);
+  --muted-foreground: oklch(0.42 0.04 255);
+  color: var(--navy);
+}
+.space-backdrop {
+  background-color: var(--space-surface);
+  background-image:
+    radial-gradient(ellipse 60% 40% at 15% 20%, color-mix(in oklab, var(--lavender) 35%, transparent), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 85% 45%, color-mix(in oklab, var(--teal) 30%, transparent), transparent 70%),
+    radial-gradient(ellipse 55% 30% at 40% 85%, color-mix(in oklab, var(--coral) 22%, transparent), transparent 70%),
+    radial-gradient(circle at 20% 30%, var(--on-dark) 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 80%, var(--sun) 1px, transparent 1.5px),
+    radial-gradient(circle at 50% 50%, var(--on-dark) 0.8px, transparent 1.2px);
+  background-size: auto, auto, auto, 140px 140px, 190px 190px, 90px 90px;
+}
 
 @layer base {
   * { border-color: var(--color-border); }
