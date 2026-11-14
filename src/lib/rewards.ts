@@ -161,5 +161,5 @@ export function applyRedemption(s: DemoState, now: string, today: string): DemoS
   return { ...s, redemption: { at: now, amount: earnedTotal(s) } };
 }
 
-export const ageDefaultDifficulty = (band: AgeBand): Difficulty => (band === "10-12" ? "gentle" : "challenge");
+export const ageDefaultDifficulty = (band: AgeBand): Difficulty => (band === "8-10" ? "gentle" : "challenge");
 export const eur = (n: number) => `€${Number.isInteger(n) ? n : n.toFixed(2)}`;

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 export function AdultGuide({ game, ageBand, difficulty, onDifficulty, forcedMode }: { game: Game; ageBand: AgeBand | null; difficulty: Difficulty; onDifficulty: (d: Difficulty) => void; forcedMode: boolean }) {
   const [open, setOpen] = useState(false);
-  const [detail, setDetail] = useState(ageBand === "13-15");
+  const [detail, setDetail] = useState(ageBand === "11-12");
   return (
     <section className="rounded-3xl border-2 border-navy bg-lavender-soft">
       <button onClick={() => setOpen(!open)} aria-expanded={open} className="flex w-full items-center gap-2 px-4 py-3 text-left font-extrabold">
@@ -18,7 +18,7 @@ export function AdultGuide({ game, ageBand, difficulty, onDifficulty, forcedMode
             <p className="font-extrabold">What's this about?</p>
             <p>{detail ? game.guide.explainDetailed : game.guide.explainShort}</p>
             <button className="mt-1 text-xs font-bold underline" onClick={() => setDetail(!detail)}>{detail ? "Show simpler explanation" : "Show more detail"}</button>
-            <p className="text-xs text-muted-foreground">Suggested for age {ageBand?.replace("-", "–") ?? "?"}: {ageBand === "13-15" ? "detailed" : "simple"}.</p>
+            <p className="text-xs text-muted-foreground">Suggested for age {ageBand?.replace("-", "–") ?? "?"}: {ageBand === "11-12" ? "detailed" : "simple"}.</p>
           </div>
           <div><p className="font-extrabold">Ask your builder</p><p>“{game.guide.question}”</p></div>
           <div><p className="font-extrabold">Nudge (doesn't give the answer)</p><p>{game.hints[0]}</p></div>

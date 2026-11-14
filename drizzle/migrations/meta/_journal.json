@@ -43,6 +43,20 @@
       "when": 1794657165686,
       "tag": "0005_wallet_card_topups",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794658749196,
+      "tag": "0006_child_age_bands_8_to_12",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794658767051,
+      "tag": "0007_validate_child_age_bands",
+      "breakpoints": true
     }
   ]
 }

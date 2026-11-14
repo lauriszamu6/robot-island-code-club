@@ -1,0 +1,2 @@
+ALTER TABLE public.child_profiles DROP CONSTRAINT child_profiles_age_range_check;
+ALTER TABLE public.child_profiles ADD CONSTRAINT child_profiles_age_range_check CHECK (age_range IN ('8-10', '11-12')) NOT VALID;

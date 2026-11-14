@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyCompletion, applyRedemption, defaultState, earnedBy, earnedTotal, isLevelUnlocked, maxCost, validatePlan, type DemoState } from "@/lib/rewards";
+import { ageDefaultDifficulty, applyCompletion, applyRedemption, defaultState, earnedBy, earnedTotal, isLevelUnlocked, maxCost, validatePlan, type DemoState } from "@/lib/rewards";
 
 const withPlan = (): DemoState => ({
   ...defaultState(),
@@ -60,8 +60,10 @@ describe("adventure progression (Core 1)", () => {
   it("next game skips completed and locked games", () => {
     expect(nextOpenGame(GAMES, new Set(["1-1"]))?.id).toBe("1-2");
   });
-  it("age 10–12 suggests gentle, 13–15 suggests challenge", () => {
-    expect(suggestedDifficulty("10-12")).toBe("gentle");
-    expect(suggestedDifficulty("13-15")).toBe("challenge");
+  it("age 8–10 suggests gentle, 11–12 suggests challenge", () => {
+    expect(suggestedDifficulty("8-10")).toBe("gentle");
+    expect(ageDefaultDifficulty("8-10")).toBe("gentle");
+    expect(suggestedDifficulty("11-12")).toBe("challenge");
+    expect(ageDefaultDifficulty("11-12")).toBe("challenge");
   });
 });

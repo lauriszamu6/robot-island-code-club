@@ -62,4 +62,4 @@ export function levelState(games: Game[], done: Set<string>, n: number): "locked
 }
 export const nextOpenGame = (games: Game[], done: Set<string>) =>
   games.find((g) => levelState(games, done, g.level) !== "locked" && !done.has(g.id)) ?? null;
-export const suggestedDifficulty = (age: AgeBand): Difficulty => (age === "10-12" ? "gentle" : "challenge");
+export const suggestedDifficulty = (age: AgeBand): Difficulty => (age === "8-10" ? "gentle" : "challenge");

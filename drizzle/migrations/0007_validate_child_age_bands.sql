@@ -1,0 +1,1 @@
+ALTER TABLE public.child_profiles VALIDATE CONSTRAINT child_profiles_age_range_check;

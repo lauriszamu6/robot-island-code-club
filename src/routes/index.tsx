@@ -28,7 +28,7 @@ function Welcome() {
       <SkyBackdrop />
       <div className="relative mx-auto grid max-w-5xl items-center gap-8 px-5 py-12 md:grid-cols-2 md:py-20">
         <div className="anim-enter">
-          <p className="inline-block rounded-full bg-teal px-3 py-1 text-sm font-extrabold text-secondary-foreground">For ages 10–15 + a trusted adult</p>
+          <p className="inline-block rounded-full bg-teal px-3 py-1 text-sm font-extrabold text-secondary-foreground">For ages 8–12 + a trusted adult</p>
           <h1 className="mt-4 text-5xl font-extrabold md:text-6xl">Astrobit</h1>
           <p className="mt-4 max-w-md text-lg">Fix up five floating workshop islands by solving coding puzzles with Bolt. Adults can guide without knowing how to code.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">

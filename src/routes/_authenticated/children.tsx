@@ -90,7 +90,7 @@ function Children() {
         <form className="mt-3 space-y-4" onSubmit={(e) => { e.preventDefault(); add.mutate(); }}>
           <label className="block font-bold">Nickname<input maxLength={30} value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. Sparky" className="mt-1 w-full rounded-xl border-2 border-navy bg-card px-3 py-2.5 font-semibold" /></label>
           <fieldset><legend className="font-bold">Age range</legend>
-            <div className="mt-2 grid grid-cols-2 gap-3">{(["10-12", "13-15"] as AgeBand[]).map((b) => (
+            <div className="mt-2 grid grid-cols-2 gap-3">{(["8-10", "11-12"] as AgeBand[]).map((b) => (
               <button type="button" key={b} aria-pressed={age === b} onClick={() => { setAge(b); setDiff(suggestedDifficulty(b)); }} className={cn("rounded-2xl border-2 border-navy px-4 py-3 font-extrabold", age === b ? "bg-teal text-secondary-foreground" : "bg-card")}>{b.replace("-", "–")} years</button>
             ))}</div>
           </fieldset>

@@ -1,12 +1,12 @@
 // All 15 games, built from three reusable engines: "order", "grid", "logic".
 export type Difficulty = "gentle" | "challenge";
-export type AgeBand = "10-12" | "13-15";
+export type AgeBand = "8-10" | "11-12";
 export type GameKind = "order" | "grid" | "logic";
 
 export type Guide = {
   concept: string;
-  explainShort: string; // 10–12
-  explainDetailed: string; // 13–15
+  explainShort: string; // 8–10
+  explainDetailed: string; // 11–12
   question: string;
 };
 

@@ -84,7 +84,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Astrobit — family coding adventures" },
-      { name: "description", content: "Kids 10–15 and a trusted adult explore programming together on floating robot workshop islands." },
+      { name: "description", content: "Kids 8–12 and a trusted adult explore programming together on floating robot workshop islands." },
       { property: "og:title", content: "Astrobit" },
       { property: "og:description", content: "Family coding adventures on floating robot workshop islands." },
       { property: "og:type", content: "website" },
