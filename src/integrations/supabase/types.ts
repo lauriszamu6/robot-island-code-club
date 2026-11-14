@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      adult_verifications: {
+        Row: {
+          adult_id: string
+          session_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          adult_id: string
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          adult_id?: string
+          session_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       child_profiles: {
         Row: {
           adult_id: string

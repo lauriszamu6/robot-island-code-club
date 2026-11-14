@@ -1,3 +1,4 @@
+import { VerifyGate } from "@/components/VerifyGate";
 import { setMode } from "@/lib/session-mode";
 import { AdultGate } from "@/components/AdultGate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/children")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <AdultGate><Children /></AdultGate>,
+  component: () => <AdultGate><VerifyGate><Children /></VerifyGate></AdultGate>,
 });
 
 function Children() {
