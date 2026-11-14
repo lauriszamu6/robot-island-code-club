@@ -6,6 +6,8 @@ const BASE = "https://verification.didit.me";
 async function didit(path: string, init: RequestInit = {}) {
   const key = process.env["DIDIT_API_KEY"];
   if (!key) throw new Error("Identity check isn't configured yet.");
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key.trim()))
+    throw new Error("The saved Didit key looks like an application ID, not an API key.");
   const res = await fetch(BASE + path, {
     ...init,
     headers: { "x-api-key": key, "Content-Type": "application/json", ...(init.headers ?? {}) },
