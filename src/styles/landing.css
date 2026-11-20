@@ -1,0 +1,183 @@
+.astro-landing{color-scheme:dark;--bg:#0c1027;--nav:#0f142d;--panel:#151b37;--panel2:#1c2444;--line:#2a3557;--ink:#f3f6ff;--muted:#abb8d4;--cyan:#65ebf1;--lime:#daff88;--violet:#ae95ff;--dim:#1f2850;margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.astro-landing *{box-sizing:border-box;min-width:0}
+html.astro-landing-html{scrollbar-width:none}html.astro-landing-html::-webkit-scrollbar{display:none}
+.astro-landing a{color:inherit}
+.astro-landing h1,.astro-landing h2,.astro-landing h3{font-family:'Space Grotesk',Inter,sans-serif;font-weight:700;margin:0}
+.astro-landing img{display:block;max-width:none}
+.astro-landing .btn{display:inline-flex;align-items:center;gap:10px;min-height:54px;padding:0 24px;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;border:1px solid transparent}
+.astro-landing .btn.primary{background:var(--cyan);color:var(--bg)}
+.astro-landing .btn.ghost{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.astro-landing .btn:focus-visible,.astro-landing a:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+.astro-landing .nav{position:fixed;inset:0 0 auto;z-index:50;background:color-mix(in srgb,var(--nav) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.astro-landing .nav-in{max-width:1312px;margin:0 auto;padding:12px max(4vw,16px);display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:72px}
+.astro-landing .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:700;font-size:26px;letter-spacing:0}
+.astro-landing .spark{width:36px;height:36px;border-radius:11px;background:var(--cyan);color:var(--bg);display:grid;place-items:center;font-weight:900;font-size:24px;letter-spacing:0}
+.astro-landing .links{display:flex;gap:6px;font-weight:500;font-size:15px;color:var(--muted)}
+.astro-landing .links a{padding:13px 18px;border-radius:14px;text-decoration:none}
+.astro-landing .links a.on{background:var(--panel);color:var(--cyan);font-weight:700}
+.astro-landing .adult{display:flex;align-items:center;gap:22px;font-size:14px;color:var(--muted)}
+.astro-landing .adult a.signin{text-decoration:none;padding:12px 0}
+.astro-landing .adult .btn{min-height:44px;padding:0 20px}
+.astro-landing .rail{position:fixed;right:max(14px,1.6vw);top:50%;transform:translateY(-50%);width:4px;height:min(44vh,320px);border-radius:4px;background:var(--line);z-index:60}
+.astro-landing .rail i{position:absolute;left:0;top:0;width:100%;height:0;border-radius:4px;background:var(--cyan)}
+.astro-landing .pin{position:relative}
+.astro-landing .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.astro-landing #hero{height:260vh}
+.astro-landing #hero .stage{display:flex;align-items:center;padding:96px max(5vw,20px) 40px}
+.astro-landing .sky{position:absolute;inset:-10% 0;z-index:0;pointer-events:none;background-image:radial-gradient(1.5px 1.5px at 20% 30%,#f3f6ff99 50%,transparent 51%),radial-gradient(1px 1px at 70% 60%,#f3f6ff77 50%,transparent 51%),radial-gradient(1.2px 1.2px at 45% 80%,#65ebf188 50%,transparent 51%),radial-gradient(1px 1px at 85% 15%,#f3f6ff88 50%,transparent 51%);background-size:230px 190px,310px 260px,410px 330px,170px 150px}
+.astro-landing .sky:after{content:"";position:absolute;inset:0;background-image:radial-gradient(2px 2px at 30% 40%,#daff88 50%,transparent 51%),radial-gradient(1.6px 1.6px at 75% 25%,#f3f6ff 50%,transparent 51%);background-size:520px 420px,640px 500px;animation:astro-twinkle 4s ease-in-out infinite}
+@keyframes astro-twinkle{50%{opacity:.2}}
+.astro-landing .shoot{position:absolute;width:clamp(90px,11vw,170px);height:2px;border-radius:2px;background:linear-gradient(90deg,#f3f6ff,#65ebf1aa 30%,transparent);opacity:0;animation:astro-shoot 7s linear infinite}
+.astro-landing .shoot:before{content:"";position:absolute;left:-2px;top:-2px;width:6px;height:6px;border-radius:50%;background:#f3f6ff;box-shadow:0 0 10px 2px #65ebf1aa}
+@keyframes astro-shoot{0%{opacity:0;transform:rotate(-24deg) translateX(0)}2%{opacity:1}11%{opacity:0;transform:rotate(-24deg) translateX(-46vw)}100%{opacity:0;transform:rotate(-24deg) translateX(-46vw)}}
+.astro-landing .rings{position:absolute;left:2vw;top:7vh;width:96vw;height:88vh;z-index:1;pointer-events:none;will-change:transform}
+.astro-landing .rings svg{width:100%;height:100%;overflow:visible}
+.astro-landing .glow{position:absolute;right:-8vw;top:50%;width:80vw;height:80vh;margin-top:-40vh;border-radius:50%;background:radial-gradient(closest-side,#232a6a66,#14194200 70%);z-index:1;pointer-events:none}
+.astro-landing .copy{display:flex;flex-direction:column;gap:23px;position:relative;z-index:4;max-width:560px}
+.astro-landing .copy:before{content:"";position:absolute;inset:-12% -8% -12% -40%;z-index:-1;background:radial-gradient(closest-side,#0c1027ee 55%,#0c102700);pointer-events:none}
+.astro-landing .badge{align-self:flex-start;display:flex;gap:8px;background:#1a2940;color:var(--lime);font-weight:700;font-size:12px;letter-spacing:1.4px;padding:8px 12px;border-radius:8px}
+.astro-landing .copy h1{font-size:clamp(46px,5.6vw,76px);line-height:1.05;letter-spacing:0;text-wrap:balance}
+.astro-landing .copy p{margin:0;color:var(--muted);font-size:19px;line-height:30px}
+.astro-landing .acts{display:flex;gap:12px;flex-wrap:wrap;padding-top:6px}
+.astro-landing .small{font-size:13px!important;line-height:20px!important}
+.astro-landing .builder-link{font-size:13px;line-height:20px;color:var(--muted)}
+.astro-landing .facts{display:flex;gap:26px;flex-wrap:wrap;font-weight:700;font-size:11px;letter-spacing:1px;color:var(--muted)}
+.astro-landing .facts b{color:var(--cyan)}
+.astro-landing .scene{position:absolute;right:2vw;top:50%;margin-top:calc(min(900px,60vw) * -0.36);width:min(900px,60vw);aspect-ratio:650/510;z-index:2}
+.astro-landing .scene .L{position:absolute;will-change:transform}
+.astro-landing .scene .L img{width:100%;height:100%}
+.astro-landing .scene .L>div{width:100%;height:100%}
+.astro-landing .bolt img{filter:drop-shadow(0 0 22px #65ebf166) drop-shadow(0 10px 18px #0008)}
+.astro-landing .sector{position:absolute;left:5%;top:3%;background:var(--panel);border:1px solid var(--line);color:var(--cyan);font-weight:700;font-size:12px;letter-spacing:1.4px;padding:10px 14px;border-radius:9px;z-index:6;white-space:nowrap}
+.astro-landing .hello{position:absolute;left:34%;top:7%;background:var(--panel2);border:1px solid #485b7a;border-radius:18px;padding:16px 22px;display:flex;flex-direction:column;gap:6px;white-space:nowrap;z-index:6;box-shadow:0 16px 40px -12px #000c}
+.astro-landing .hello:after{content:"";position:absolute;left:-9px;bottom:22px;width:16px;height:16px;background:var(--panel2);border-left:1px solid #485b7a;border-bottom:1px solid #485b7a;transform:rotate(45deg)}
+.astro-landing .hello b{font-size:17px}.astro-landing .hello span{font-size:13px;color:var(--muted)}
+.astro-landing .hchips{position:absolute;left:2%;top:73%;z-index:6;display:flex;gap:8px;align-items:center;padding:10px;border:1px solid #65ebf155;border-radius:14px;background:#151b37cc;box-shadow:0 0 30px #65ebf11f}
+.astro-landing .hchips .chip{font-size:12px;padding:9px 12px}
+.astro-landing .hchips i{font-style:normal;color:var(--muted)}
+.astro-landing .bob{animation:astro-bob 3.2s ease-in-out infinite}
+.astro-landing .bob.slow{animation-duration:4.6s;animation-delay:-1.2s}
+.astro-landing .bob.wave{animation:astro-wave 2.4s ease-in-out infinite;transform-origin:60% 90%}
+@keyframes astro-bob{50%{transform:translateY(-10px)}}
+@keyframes astro-wave{25%{transform:rotate(-4deg) translateY(-4px)}75%{transform:rotate(4deg) translateY(-2px)}}
+.astro-landing #steps{height:440vh}
+.astro-landing .words{position:absolute;left:0;right:0;top:0;z-index:2;text-align:center;will-change:transform;padding:0 4vw}
+.astro-landing .words h2{font-size:clamp(44px,9vw,150px);line-height:1.02;letter-spacing:0;color:var(--dim);transition:color .35s;padding:.12em 0;text-wrap:balance}
+.astro-landing .words h2.on{color:var(--ink)}
+.astro-landing .steplab{position:absolute;left:50%;bottom:9vh;transform:translateX(-50%);z-index:3;font-weight:700;font-size:13px;letter-spacing:1.2px;white-space:nowrap;display:flex;gap:14px;align-items:center}
+.astro-landing .steplab span{color:var(--muted);font-weight:500;letter-spacing:0}
+.astro-landing .clip{position:absolute;z-index:1;width:clamp(150px,19vw,270px);aspect-ratio:4/3;background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;will-change:transform;box-shadow:0 30px 60px -20px #000a;margin:0}
+.astro-landing .clip .tag{position:absolute;left:12px;top:10px;font-size:11px;font-weight:700;color:var(--muted);display:flex;gap:6px;align-items:center;z-index:2}
+.astro-landing .clip .tag:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);animation:astro-blink 1.4s infinite}
+@keyframes astro-blink{50%{opacity:.25}}
+.astro-landing .clip .in{position:absolute;inset:0;display:grid;place-items:center}
+.astro-landing .grid{position:relative;width:62%;aspect-ratio:4/3;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:25% 33.33%;border:1px solid var(--line);border-radius:8px}
+.astro-landing .mini{position:absolute;left:3%;bottom:6%;width:19%;aspect-ratio:1;border-radius:6px;background:var(--cyan);animation:astro-path 4s steps(1) infinite}
+.astro-landing .mini:after{content:"";position:absolute;left:22%;right:22%;top:35%;height:18%;background:var(--bg);border-radius:3px}
+@keyframes astro-path{0%{transform:translate(0,0)}15%{transform:translate(131%,0)}30%{transform:translate(262%,0)}45%{transform:translate(262%,-175%)}60%{transform:translate(393%,-175%)}80%,100%{transform:translate(393%,-350%)}}
+.astro-landing .goal{position:absolute;right:3%;top:5%;width:19%;aspect-ratio:1;border:2px dashed var(--lime);border-radius:50%}
+.astro-landing .chips{position:absolute;bottom:9%;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.astro-landing .chip{font-size:11px;font-weight:700;padding:6px 9px;border-radius:9px;background:#243e53;color:var(--cyan)}
+.astro-landing .chip.v{background:#342952;color:var(--violet)}
+.astro-landing .chip{animation:astro-lit 2s infinite}.astro-landing .chip.v{animation-delay:1s}
+@keyframes astro-lit{0%,45%{outline:2px solid currentColor}50%,100%{outline:0}}
+.astro-landing .orbit{position:relative;width:70%;aspect-ratio:1}
+.astro-landing .orbit .ws{position:absolute;inset:24%}
+.astro-landing .orbit .ring{position:absolute;inset:0;border:1px dashed #36435c;border-radius:50%;animation:astro-spin 6s linear infinite}
+.astro-landing .orbit .sat{position:absolute;left:38%;top:-14%;width:26%;animation:astro-spin 6s linear infinite reverse}
+@keyframes astro-spin{to{transform:rotate(360deg)}}
+.astro-landing .power{width:78%;display:flex;flex-direction:column;gap:10px}
+.astro-landing .power .row{display:flex;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted)}
+.astro-landing .power .row b{color:var(--violet)}
+.astro-landing .track{height:15px;border-radius:5px;background:#282f50;overflow:hidden}
+.astro-landing .track i{display:block;height:100%;width:20%;background:var(--violet);border-radius:5px;animation:astro-charge 3s ease-in-out infinite}
+@keyframes astro-charge{70%,100%{width:100%}}
+.astro-landing .power img{width:26%;align-self:center;animation:astro-pulse 3s ease-in-out infinite}
+@keyframes astro-pulse{70%{transform:scale(1.12);filter:drop-shadow(0 0 12px #daff8888)}}
+.astro-landing .steps5{display:flex;gap:6%;width:84%;justify-content:center}
+.astro-landing .steps5 i{flex:1;aspect-ratio:1;border-radius:28%;border:1px solid #42516b;background:#202b43;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:700;color:var(--muted);animation:astro-step5 3.5s infinite}
+.astro-landing .steps5 i:nth-child(2){animation-delay:.5s}.astro-landing .steps5 i:nth-child(3){animation-delay:1s}.astro-landing .steps5 i:nth-child(4){animation-delay:1.5s}.astro-landing .steps5 i:nth-child(5){animation-delay:2s}
+@keyframes astro-step5{0%,10%{background:#202b43;color:var(--muted)}14%,60%{background:var(--lime);color:var(--bg);border-color:var(--lime)}}
+.astro-landing .launch{position:relative;width:60%;height:80%}
+.astro-landing .launch .pad{position:absolute;left:18%;bottom:6%;width:64%}
+.astro-landing .launch .rk{position:absolute;left:36%;bottom:16%;width:28%;animation:astro-lift 2.6s cubic-bezier(.5,0,.8,.4) infinite}
+@keyframes astro-lift{0%,20%{transform:translateY(0)}90%{transform:translateY(-260%);opacity:1}100%{transform:translateY(-260%);opacity:0}}
+.astro-landing .wave{width:42%}
+.astro-landing #map{height:320vh}
+.astro-landing #map .stage{display:flex;flex-direction:column;justify-content:center;gap:4vh}
+.astro-landing .maphead{padding:0 max(5vw,20px);display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.astro-landing .maphead h2{font-size:clamp(32px,4.2vw,52px);line-height:1.05;letter-spacing:0}
+.astro-landing .maphead p{margin:0;color:var(--muted);max-width:360px}
+.astro-landing .trackx{display:flex;gap:6vw;padding:0 max(30vw,40px);will-change:transform;position:relative;align-items:flex-end}
+.astro-landing .isle{flex:none;width:clamp(220px,24vw,320px);display:flex;flex-direction:column;align-items:center;gap:16px;transition:transform .5s,opacity .5s;opacity:.45;transform:scale(.88)}
+.astro-landing .isle.on{opacity:1;transform:scale(1)}
+.astro-landing .isle .art{height:clamp(120px,16vh,170px);display:flex;align-items:flex-end}
+.astro-landing .isle .art img{height:100%;width:auto}
+.astro-landing .isle .num{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:700;font-size:12px;background:#202b43;border:1px solid #42516b;color:var(--muted)}
+.astro-landing .isle.on .num{background:var(--lime);color:var(--bg);border-color:var(--lime)}
+.astro-landing .isle h3{font-size:23px}
+.astro-landing .isle p{margin:0;color:var(--muted);font-size:14px;text-align:center}
+.astro-landing .dots{position:absolute;left:0;right:0;bottom:calc(50% + 40px);height:0;border-top:3px dotted #57e5f1aa;z-index:-1}
+.astro-landing .finale{position:relative;padding:clamp(80px,12vw,160px) max(5vw,20px) 80px;max-width:1312px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:40px;align-items:center}
+.astro-landing .finale h2{font-size:clamp(40px,6vw,84px);line-height:1.02;letter-spacing:0;text-wrap:balance}
+.astro-landing .finale p{color:var(--muted);font-size:18px;margin:20px 0 28px;max-width:520px}
+.astro-landing .forge{position:relative;aspect-ratio:1;max-width:660px;width:100%;justify-self:center;transform:translateY(60px);opacity:0;transition:transform 1s cubic-bezier(.2,.7,.2,1),opacity 1s}
+.astro-landing .forge.in{transform:none;opacity:1}
+.astro-landing .forge .L{position:absolute}
+.astro-landing .forge .L>div,.astro-landing .forge .L img{width:100%;height:100%}
+.astro-landing .forge .bolt img{filter:drop-shadow(0 0 26px #65ebf177) drop-shadow(0 14px 20px #0009)}
+.astro-landing .holo{position:absolute;left:44%;top:1%;width:37%;padding:16px 16px 18px;border:1px solid #65ebf166;border-radius:18px;background:linear-gradient(160deg,#65ebf11f,#151b37cc 60%);box-shadow:0 0 40px #65ebf122,inset 0 0 30px #65ebf10f;transform:perspective(900px) rotateY(-16deg) rotateX(4deg);backdrop-filter:blur(4px);animation:astro-hover 5s ease-in-out infinite;z-index:4}
+@keyframes astro-hover{50%{transform:perspective(900px) rotateY(-12deg) rotateX(2deg) translateY(-8px)}}
+.astro-landing .holo .bar{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--cyan);margin-bottom:12px}
+.astro-landing .holo .bar span{color:var(--lime);display:flex;gap:6px;align-items:center}
+.astro-landing .holo .bar span:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime);animation:astro-blink 1s infinite}
+.astro-landing .prog{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none}
+.astro-landing .prog li{font-weight:700;font-size:clamp(10px,1.05vw,13px);padding:8px 11px;border-radius:9px;width:max-content;max-width:100%;white-space:nowrap}
+.astro-landing .prog .c{background:#243e53;color:var(--cyan)}.astro-landing .prog .v{background:#342952;color:var(--violet)}.astro-landing .prog .g{background:#2f3a1c;color:var(--lime)}
+.astro-landing .prog .ind{margin-left:18px}
+.astro-landing .prog .run{animation:astro-run 4.8s infinite}
+.astro-landing .prog .run:nth-child(2){animation-delay:.2s}.astro-landing .prog .run:nth-child(3){animation-delay:.6s}.astro-landing .prog .run:nth-child(4){animation-delay:1.0s}.astro-landing .prog .run:nth-child(5){animation-delay:3.8s}
+@keyframes astro-run{0%,100%{box-shadow:none}2%,10%{box-shadow:0 0 0 2px currentColor,0 0 18px currentColor}14%{box-shadow:none}}
+.astro-landing .beam{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
+.astro-landing .beam path{fill:none;stroke:#65ebf1;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-dasharray:6 10;animation:astro-flow 1.2s linear infinite;filter:drop-shadow(0 0 6px #65ebf1)}
+@keyframes astro-flow{to{stroke-dashoffset:-32}}
+.astro-landing .tower{position:absolute;left:79%;top:29%;width:17%;height:34%;z-index:6}
+.astro-landing .cube{position:absolute;left:0;width:100%;height:32%;opacity:0;animation:astro-drop 4.8s cubic-bezier(.3,1.4,.5,1) infinite}
+.astro-landing .cube svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 10px #ae95ff55)}
+.astro-landing .cube:nth-child(1){bottom:0;animation-delay:.6s}.astro-landing .cube:nth-child(2){bottom:22%;animation-delay:1.4s}.astro-landing .cube:nth-child(3){bottom:44%;animation-delay:2.2s}.astro-landing .cube:nth-child(4){bottom:66%;animation-delay:3s}
+@keyframes astro-drop{0%{opacity:0;transform:translateY(-70%) scale(.8)}7%{opacity:1;transform:none}80%{opacity:1;transform:none}92%,100%{opacity:0;transform:none}}
+.astro-landing .zap{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime);opacity:0;animation:astro-zap 1.6s ease-out infinite}
+@keyframes astro-zap{0%{opacity:1;transform:translate(0,0) scale(1)}60%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}100%{opacity:0}}
+.astro-landing .done{position:absolute;left:68%;top:20%;z-index:7;background:var(--lime);color:var(--bg);font-weight:900;font-size:12px;letter-spacing:1px;padding:8px 12px;border-radius:9px;opacity:0;animation:astro-done 4.8s infinite;white-space:nowrap}
+@keyframes astro-done{0%,74%{opacity:0;transform:translateY(8px) scale(.9)}78%,90%{opacity:1;transform:none}96%,100%{opacity:0}}
+.astro-landing .finale .lead{font-size:20px;color:var(--ink);font-weight:500;margin:20px 0 0}
+.astro-landing .finale .pts{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 26px}
+.astro-landing .finale .pts span{font-weight:700;font-size:13px;padding:8px 12px;border-radius:9px;background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+.astro-landing footer{border-top:1px solid var(--line);margin:0 max(4vw,16px)}
+.astro-landing footer div{max-width:1312px;margin:0 auto;padding:30px 8px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.astro-landing footer b{font-size:18px;color:var(--ink)}
+.astro-landing footer span:last-child{margin-left:auto;font-weight:500}
+@media(max-width:900px){
+  .astro-landing .links{display:none}
+  .astro-landing #hero .stage{flex-direction:column;justify-content:center;gap:4px;padding-top:84px}
+  .astro-landing .scene{position:relative;right:auto;top:auto;margin:0 auto;width:min(560px,96vw)}
+  .astro-landing .rings{left:-20vw;width:140vw;top:30vh;height:62vh}
+  .astro-landing .glow{right:-30vw;top:62%;width:130vw}
+  .astro-landing .copy{gap:14px}.astro-landing .copy p{font-size:16px;line-height:24px}.astro-landing .facts,.astro-landing .small{display:none}
+  .astro-landing .hello{left:36%;top:2%}.astro-landing .hello b{font-size:14px}.astro-landing .hello span{font-size:11px}.astro-landing .hchips{left:0;top:80%}.astro-landing .hchips .chip{font-size:10px;padding:7px 9px}
+  .astro-landing .sector{left:auto;right:6%;top:97%;font-size:10px}
+  .astro-landing .finale{grid-template-columns:1fr}
+  .astro-landing .clip{width:clamp(130px,34vw,200px)}
+}
+@media(max-width:600px){.astro-landing .adult a.signin{display:none}.astro-landing .copy h1{letter-spacing:0}.astro-landing .steplab{font-size:11px}.astro-landing .steplab span{display:none}
+  .astro-landing #hero .stage{justify-content:flex-start}
+  .astro-landing .copy,.astro-landing .scene{flex-shrink:0}
+  .astro-landing .builder-link{max-width:100%}
+  .astro-landing .done{left:auto;right:0;font-size:10px;letter-spacing:0;padding:8px}
+  .astro-landing .holo{padding:10px}
+  .astro-landing .holo .bar{font-size:7px;letter-spacing:0;gap:4px}
+  .astro-landing .prog li{padding:6px;font-size:10px}
+  .astro-landing .prog .ind{margin-left:8px}
+}
+.astro-landing .orbit .ws{width:52%;height:52%}
+@media(prefers-reduced-motion:reduce){.astro-landing *,.astro-landing *:before,.astro-landing *:after{animation:none!important;transition:none!important}.astro-landing .cube{opacity:1}.astro-landing .done{opacity:1}}

@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="54" height="84" viewBox="0 0 54 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="rocket">
+<path id="Vector" d="M14 52L0 67V84L17 74L14 52Z" fill="#FF9756"/>
+<path id="Vector_2" d="M38 50L50 63L54 82L36 73L38 50Z" fill="#D96546"/>
+<path id="Vector_3" d="M17 69H36L38 84H15L17 69Z" fill="#5B5780"/>
+<path id="Vector_4" d="M13 62C8.99999 39 13 16 26 0C43 14 47 37 41 63L36 74H18L13 62Z" fill="#EDF7FF"/>
+<path id="Vector_5" d="M26 0C43 14 47 37 41 63L36 74H28C38 41 34 20 26 0Z" fill="#B8DCE9"/>
+<path id="Vector_6" d="M26 0C34 7 39 17 42 28C32 32 22 31.6667 12 27C14 16 19 7 26 0Z" fill="#FF9756"/>
+<path id="Vector_7" d="M28 56C32.9706 56 37 51.0751 37 45C37 38.9249 32.9706 34 28 34C23.0294 34 19 38.9249 19 45C19 51.0751 23.0294 56 28 56Z" fill="#24264E" stroke-width="4" stroke="#FF9756"/>
+<path id="Vector_8" d="M28 38C34 38 35 49 28 52C22 52 21 41 28 38Z" fill="#57E5F1"/>
+<path id="Vector_9" d="M17 67H39L36 75H19L17 67Z" fill="#FF9756"/>
+</g>
+</svg>

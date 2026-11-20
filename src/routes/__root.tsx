@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -123,15 +124,18 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const isLanding = useRouterState({ select: (state) => state.location.pathname === "/" });
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <AppHeader />
-      <div className="relative isolate min-h-[calc(100dvh-4rem)]">
-        <SpaceBackdrop className="-z-10" />
-        <Outlet />
-      </div>
+      {isLanding ? <Outlet /> : <>
+        <AppHeader />
+        <div className="relative isolate min-h-[calc(100dvh-4rem)]">
+          <SpaceBackdrop className="-z-10" />
+          <Outlet />
+        </div>
+      </>}
     </QueryClientProvider>
   );
 }

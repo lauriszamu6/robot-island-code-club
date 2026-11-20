@@ -1,4 +1,5 @@
 # Astrobit roadmap
+- [x] Replace only the welcome page with the supplied scroll landing; verify scroll scenes, links, motion preferences and 360px layout.
 - [x] Change target ages to 8–12, update profile bands and preserve existing profiles and difficulty overrides.
 - [x] Core 1: guided coding adventures in the database (levels, games, child profiles, progress)
 - [x] Core 2: parent-funded goals & rewards in the database (reward plans, savings goals, wallet transactions in cents).
